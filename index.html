@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spread Control Simulator</title>
+
+    <style>
+       body {
+    margin: 0;
+    font-family: Arial;
+    text-align: center;
+}
+
+/* Welcome Screen */
+#welcomeScreen {
+    height: 100vh;
+    background: 
+        linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
+        url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05') no-repeat center/cover;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Game Screen */
+#gameScreen {
+    display: none;
+    padding-top: 20px;
+}
+
+/* Grid */
+ #grid {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    gap: 5px;
+
+    position: absolute;      /* 👈 force positioning */
+    left: 50%;               /* 👈 move to middle */
+    transform: translateX(-50%);  /* 👈 perfect center */
+
+    margin-top: 20px;
+}
+   
+
+/* Cells */
+.cell {
+    width: 40px;
+    height: 40px;
+    background-color: green;
+}
+
+/* Buttons */
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Speed Controls (RIGHT SIDE ONLY) */
+#controls {
+    position: fixed;
+    right: 20px;
+    top: 150px;
+    width: 120px;
+}
+
+#controls button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+}
+    </style>
+</head>
+
+<body>
+
+    <!-- Welcome Screen -->
+  <div id="welcomeScreen">
+        <h1>🌱 Invasive Species Simulator</h1>
+        <button onclick="startGame()">Start Simulation</button>
+    </div>
+    <!-- Game Screen -->
+   <div id="gameScreen">
+    <h1>Simulation Running</h1>
+ <h2>Try to stop the spread before it reaches 80%!</h2>
+    <button onclick="goBack()">⬅️ Back</button>
+    <button onclick="stopSimulation()">⏹ Stop</button>
+    <button onclick="resumeSimulation()">▶️ Resume</button>
+    <button onclick="resetSimulation()">🔄 Reset</button>
+
+    <p id="stats">Infected: 0%</p>
+
+    <div id="grid"></div>
+
+    <!-- ONLY speed controls here -->
+    <div id="controls">
+        <h3>Speed</h3>
+        <button onclick="setSpeed(500)">Fast</button>
+        <button onclick="setSpeed(1200)">Normal</button>
+        <button onclick="setSpeed(2500)">Slow</button>
+    </div>
+</div>
+   
+
+<
+    <script>
+       let cells = [];
+let interval;
+
+function startGame() {
+    document.getElementById("welcomeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+
+    createGrid();
+updateStats();
+
+    interval = setInterval(spreadInfection, 1500);
+}
+
+function goBack() {
+    clearInterval(interval);
+
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("welcomeScreen").style.display = "flex";
+    document.getElementById("grid").innerHTML = "";
+}
+
+function createGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    cells = [];
+
+    for (let i = 0; i < 100; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+
+        // Random starting infection
+        if (Math.random() < 0.15) {
+            cell.style.backgroundColor = "red";
+        }
+
+        // Click to block (blue)
+        cell.addEventListener("click", () => {
+            cell.style.backgroundColor = "blue";
+        });
+
+        grid.appendChild(cell);
+        cells.push(cell);
+    }
+}
+
+function spreadInfection() {
+    let newColors = [];
+
+    for (let i = 0; i < cells.length; i++) {
+        if (cells[i].style.backgroundColor === "red") {
+
+          let neighbors = [
+    i - 1,     // left
+    i + 1,     // right
+    i - 10,    // up
+    i + 10     // down
+];
+            neighbors.forEach(n => {
+                if (n >= 0 && n < cells.length) {
+
+                    let color = cells[n].style.backgroundColor;
+
+                    if (color !== "red" && color !== "blue") {
+                        if (Math.random() < 0.15) {
+                            newColors[n] = "red";
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    for (let i = 0; i < newColors.length; i++) {
+        if (newColors[i] === "red") {
+            cells[i].style.backgroundColor = "red";
+        }
+    }
+    updateStats();
+}
+function updateStats() {
+    let infected = 0;
+
+    for (let i = 0; i < cells.length; i++) {
+        if (cells[i].style.backgroundColor === "red") {
+            infected++;
+        }
+    }
+
+    let percent = Math.floor((infected / cells.length) * 100);
+
+    document.getElementById("stats").innerText = "Infected: " + percent + "%";
+}
+function stopSimulation() {
+    clearInterval(interval);
+}
+
+function resetSimulation() {
+    clearInterval(interval);
+    createGrid();
+    updateStats();
+}
+function setSpeed(speed) {
+    clearInterval(interval);
+    interval = setInterval(spreadInfection, speed);
+}
+function resumeSimulation() {
+    clearInterval(interval);
+    interval = setInterval(spreadInfection, 1800);
+}
+    </script>
+
+</body>
+</html>
