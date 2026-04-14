@@ -41,20 +41,16 @@ h1 {
 p {
     color: #444;
 }
-        #gameScreen {
-    display: none;
-
-    width: 80%;
-    max-width: 900px;
-
+    #gameScreen {
+    background: rgba(255, 255, 255, 0.9);
     margin: 40px auto;
-    padding: 20px;
-
-    background: white;
-    border-radius: 15px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 25px;
+    border-radius: 20px;
+    width: 85%;
+    max-width: 900px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
+
 
     #grid {
     display: grid;
@@ -165,7 +161,7 @@ button:hover {
 <script>
 let time = 0;
 let canClick = true;
-let grid = document.getElementById("grid");
+let grid;
 let cells = [];
 let interval = null;
 let spreadSpeed = 2000;
@@ -187,39 +183,48 @@ function startGame() {
 
 // CREATE GRID
 function createGrid() {
+
+    grid = document.getElementById("grid");
     grid.innerHTML = "";
     cells = [];
 
     for (let i = 0; i < 100; i++) {
+
         let cell = document.createElement("div");
         cell.classList.add("cell");
-        cell.style.backgroundColor = "green";  // ADD THIS
+        cell.style.backgroundColor = "green";
 
         // random infection start
         if (Math.random() < 0.1) {
             cell.style.backgroundColor = "red";
         }
 
+        // CLICK LOGIC
         cell.addEventListener("click", () => {
 
-    if (!canClick) return;   // 👈 stops clicking after end
+            if (!canClick) return;
 
-    if (cell.style.backgroundColor !== "blue") {
-        cell.style.backgroundColor = "blue";
-        blueCount++;
-    }
-});
+            if (!cell.classList.contains("controlled")) {
 
+                cell.classList.add("controlled");
+                cell.style.backgroundColor = "blue";
+
+                blueCount++;
+            }
+        });
+
+        // ✅ THESE WERE IN WRONG PLACE
         grid.appendChild(cell);
         cells.push(cell);
     }
+
     updateStats();
 }
-
 // START SIMULATION
 function beginSimulation() {
 
     time = 0;
+    noSpreadCount = 0;  
     document.getElementById("monthDisplay").innerText = "Month: 0";
 
     clearInterval(interval);
@@ -301,9 +306,14 @@ let greenLeft = cells.some(cell =>
 );
 
 // FINAL END CONDITION
-if ((!greenLeft || noSpreadCount >= 3) && !gameEnded) {
+
+if (!canSpreadFurther() && !gameEnded) {
+
     gameEnded = true;
     clearInterval(interval);
+
+    canClick = false;
+
     showEndMessage();
 }
 }
@@ -361,6 +371,9 @@ noSpreadCount = 0;
     document.getElementById("stats").innerText = "Infected Area: 0%";
 
     createGrid();
+    cells.forEach(cell => {
+    cell.classList.remove("controlled"); // reset tracking
+});
 }
 
 // SPEED CONTROL
@@ -409,6 +422,29 @@ function resetGrid() {
 
 
     canClick = true;
+}
+function canSpreadFurther() {
+
+    for (let i = 0; i < cells.length; i++) {
+
+        if (cells[i].style.backgroundColor === "red") {
+
+            let neighbors = [
+                i - 1,
+                i + 1,
+                i - 10,
+                i + 10
+            ];
+
+            for (let j of neighbors) {
+                if (cells[j] && cells[j].style.backgroundColor === "green") {
+                    return true; // spread still possible
+                }
+            }
+        }
+    }
+
+    return false; // no possible spread left
 }
 
 </script>
