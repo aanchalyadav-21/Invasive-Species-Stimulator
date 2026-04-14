@@ -139,16 +139,19 @@ button:hover {
     Try to reduce the spread as much as possible using control measures.
     </p>
 
-    <button onclick="beginStimulation()">▶️ Start Simulation</button>
+    <button onclick="beginSimulation()">▶️ Start Simulation</button>
     <button onclick="resetSimulation()">🔄 Reset</button>
     <button onclick="goBack()">⬅️ Back</button>
 <button onclick="stopSimulation()">⏹ Stop</button>
 <button onclick="resumeSimulation()">▶️ Resume</button>
 
     <p id="stats">Infected Area: 0%</p>
+    <h3 id="monthDisplay">Month: 0</h3>
+<p id="message"></p>
 
 <p id="endMessage" style="font-weight:bold; color:red;"></p>
     <div id="grid"></div>
+   
 
     <div id="controls">
         <h3>Speed</h3>
@@ -160,6 +163,7 @@ button:hover {
 </div>
 
 <script>
+let time = 0;
 let canClick = true;
 let grid = document.getElementById("grid");
 let cells = [];
@@ -168,12 +172,17 @@ let spreadSpeed = 2000;
 let spreadChance = 0.15;
 let blueCount = 0;
 let gameEnded = false;
+let noSpreadCount = 0;
+
+
 
 // START GAME
 function startGame() {
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "block";
     createGrid();
+   
+    
 }
 
 // CREATE GRID
@@ -184,6 +193,7 @@ function createGrid() {
     for (let i = 0; i < 100; i++) {
         let cell = document.createElement("div");
         cell.classList.add("cell");
+        cell.style.backgroundColor = "green";  // ADD THIS
 
         // random infection start
         if (Math.random() < 0.1) {
@@ -203,14 +213,18 @@ function createGrid() {
         grid.appendChild(cell);
         cells.push(cell);
     }
+    updateStats();
 }
 
 // START SIMULATION
 function beginSimulation() {
+
+    time = 0;
+    document.getElementById("monthDisplay").innerText = "Month: 0";
+
     clearInterval(interval);
     interval = setInterval(spreadInfection, spreadSpeed);
 }
-
 // SPREAD LOGIC
 
 
@@ -232,70 +246,90 @@ function updateStats() {
 }
 function spreadInfection() {
 
-    let newStates = [];
+    time++;
+    document.getElementById("monthDisplay").innerText =
+        "Month: " + time;
+
     let changed = false;
+    let newRed = [];
 
-    for (let i = 0; i < cells.length; i++) {
+    // 🔥 SPREAD LOGIC
+    cells.forEach((cell, index) => {
 
-        if (cells[i].style.backgroundColor === "red") {
+        if (cell.style.backgroundColor === "red") {
 
-            let neighbors = [i - 1, i + 1, i - 10, i + 10];
+            let neighbors = [
+                index - 1,
+                index + 1,
+                index - 10,
+                index + 10
+            ];
 
-            for (let j = 0; j < neighbors.length; j++) {
+            neighbors.forEach(i => {
 
-                let n = neighbors[j];
+                if (cells[i] &&
+                    cells[i].style.backgroundColor === "green") {
 
-                if (cells[n]) {
-
-                    let color = cells[n].style.backgroundColor;
-
-                    if (color !== "red" && color !== "blue") {
-
-                        if (Math.random() < spreadChance) {
-                            newStates.push(n);
-                            changed = true;
-                        }
+                    if (Math.random() < spreadChance) {
+                        newRed.push(cells[i]);
+                        changed = true;
                     }
                 }
-            }
+            });
         }
-    }
+    });
 
-    // apply changes AFTER loop
-    for (let k = 0; k < newStates.length; k++) {
-        cells[newStates[k]].style.backgroundColor = "red";
-    }
+    // APPLY NEW RED
+    newRed.forEach(cell => {
+        cell.style.backgroundColor = "red";
+    });
 
+    // UPDATE STATS
     updateStats();
 
-    // stop only if no change
-    if (!changed && !gameEnded) {
-        gameEnded = true;
-        clearInterval(interval);
-        showEndMessage();
-    }
+    // ✅ 👉 PLACE END CONDITION HERE (VERY END)
+
+    if (changed) {
+    noSpreadCount = 0; // reset if spread happens
+} else {
+    noSpreadCount++;
+}
+
+// check if any green cells left
+let greenLeft = cells.some(cell =>
+    cell.style.backgroundColor === "green"
+);
+
+// FINAL END CONDITION
+if ((!greenLeft || noSpreadCount >= 3) && !gameEnded) {
+    gameEnded = true;
+    clearInterval(interval);
+    showEndMessage();
+}
 }
 function showEndMessage() {
-canClick = false;
+
+    canClick = false; // 🛑 stop placing blue boxes
+
     document.getElementById("endMessage").innerText =
         "Simulation complete. Analyzing results...";
 
+    document.getElementById("message").innerText =
+        "Spread stabilized after " + time + " months";
+
     setTimeout(() => {
         showFinalResult();
-    }, 4000);
+    }, 2000); // ⏱️ 2 second delay
 }
    function showFinalResult() {
 
     let infected = 0;
     let protectedCount = 0;
 
-    for (let i = 0; i < cells.length; i++) {
-
-        let color = cells[i].style.backgroundColor;
-
-        if (color === "red") infected++;
-        else if (color === "blue") protectedCount++;
-    }
+    cells.forEach(cell => {
+        if (cell.style.backgroundColor === "red") infected++;
+        if (cell.style.backgroundColor === "blue") protectedCount++;
+    });
 
     let total = cells.length;
 
@@ -304,17 +338,28 @@ canClick = false;
 
     localStorage.setItem("infected", infectedPercent);
     localStorage.setItem("protected", protectedPercent);
-    localStorage.setItem("blue", blueCount);
+    localStorage.setItem("time", time);
+
+    console.log("Going to result page...");
 
     window.location.href = "result.html";
 }
-
 // RESET
 function resetSimulation() {
+noSpreadCount = 0;
     clearInterval(interval);
     interval = null;
+
+    time = 0;  // ✅ RESET TIME
+
+    document.getElementById("monthDisplay").innerText = "Month: 0";
+
     blueCount = 0;
     gameEnded = false;
+
+    document.getElementById("endMessage").innerText = "";
+    document.getElementById("stats").innerText = "Infected Area: 0%";
+
     createGrid();
 }
 
@@ -326,10 +371,10 @@ function setSpeed(type) {
         spreadSpeed = 1000;
         spreadChance = 0.2;
     } else if (type === "normal") {
-        spreadSpeed = 2000;
+        spreadSpeed = 2500;
         spreadChance = 0.1;
     } else {
-        spreadSpeed = 3000;
+        spreadSpeed = 3500;
         spreadChance = 0.15;
     }
 
@@ -346,15 +391,24 @@ function stopSimulation() {
 }
 
 function resumeSimulation() {
-   let redCells = cells.filter(c => c.style.backgroundColor === "red").length;
-
-if (!changed && redCells > 0 && !gameEnded) {
-    gameEnded = true;
-    clearInterval(interval);
-    showEndMessage();
-} {
+    if (!interval) {
         interval = setInterval(spreadInfection, spreadSpeed);
     }
+}
+function resetGrid() {
+
+    clearInterval(interval);
+    month = 0;
+
+    document.getElementById("monthDisplay").innerText = "Month: 0";
+    document.getElementById("message").innerText = "";
+
+    cells.forEach(cell => {
+        cell.style.backgroundColor = "green";
+    });
+
+
+    canClick = true;
 }
 
 </script>
