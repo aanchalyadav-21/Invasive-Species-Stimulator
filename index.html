@@ -68,6 +68,8 @@ p {
     background-color: #4caf50;
 
     transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+
 }
 
 
@@ -126,7 +128,7 @@ button:hover {
 <div id="gameScreen"style="display:none;">
 
 
-    <h1>Invasive Species Spread Simulation</h1>
+    <h1>Simulation Model: Spread Dynamics</h1>
    <p>
     🟢 Healthy &nbsp;&nbsp; 🔴 Infected &nbsp;&nbsp; 🔵 Controlled
     </p>
@@ -138,8 +140,7 @@ button:hover {
     <button onclick="beginSimulation()">▶️ Start Simulation</button>
     <button onclick="resetSimulation()">🔄 Reset</button>
     <button onclick="goBack()">⬅️ Back</button>
-<button onclick="stopSimulation()">⏹ Stop</button>
-<button onclick="resumeSimulation()">▶️ Resume</button>
+
 
     <p id="stats">Infected Area: 0%</p>
     <h3 id="monthDisplay">Month: 0</h3>
@@ -398,16 +399,9 @@ function goBack() {
     location.reload(); // goes back to welcome screen
 }
 
-function stopSimulation() {
-    clearInterval(interval);
-    interval = null;
-}
 
-function resumeSimulation() {
-    if (!interval) {
-        interval = setInterval(spreadInfection, spreadSpeed);
-    }
-}
+
+
 function resetGrid() {
 
     clearInterval(interval);
