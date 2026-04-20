@@ -6,150 +6,254 @@
     <style>
       body {
     margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
 
-    background: linear-gradient(to right, #eef2f3, #ffffff);
+    background: linear-gradient(-45deg, #134e5e, #2e7d32, #66bb6a, #a5d6a7);
+    background-size: 400% 400%;
+
+    animation: gradientFlow 12s ease infinite;
 }
 
        #welcomeScreen {
-    height: 100vh;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
 
-    background: linear-gradient(to right, #56ab2f, #a8e063);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    color: white;
-}
-
-#welcomeScreen h1 {
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-
-#welcomeScreen p {
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-h1 {
-    margin-bottom: 10px;
-}
-
-p {
-    color: #444;
-}
-    #gameScreen {
-    background: rgba(255, 255, 255, 0.9);
-    margin: 40px auto;
-    padding: 25px;
     border-radius: 20px;
-    width: 85%;
+    padding: 30px;
+
+    width: 90%;
     max-width: 900px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin: 40px auto;
+
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+
+    text-align: center;
+}
+/* GAME SCREEN CARD */
+#gameScreen {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(15px);
+
+    border-radius: 20px;
+    padding: 30px;
+
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+
+    text-align: center;
+
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
 }
 
-
-    #grid {
+/* GRID */
+#grid {
     display: grid;
     grid-template-columns: repeat(10, 40px);
     gap: 6px;
 
-    width: max-content;
-    margin: 20px auto;
+    justify-content: center;
+    margin: 25px auto;
 }
+
+/* CELLS */
 .cell {
     width: 40px;
     height: 40px;
 
     border-radius: 6px;
-    background-color: #4caf50;
+    background: green;
 
-    transition: all 0.3s ease;
-    border: 1px solid #e0e0e0;
-
+    transition: 0.2s;
 }
 
+.cell:hover {
+    transform: scale(1.1);
+}
 
-        
-       button {
+/* STATS */
+.statsBox {
+    display: flex;
+    justify-content: space-around;
+
+    margin: 15px 0;
+    padding: 15px;
+
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+}
+
+.statsBox h3 {
+    margin: 0;
+    color: #fff;
+}
+
+/* BUTTON GROUP */
+.btnGroup {
+    margin: 15px 0;
+}
+
+/* BUTTONS */
+button {
     padding: 10px 18px;
-    margin: 8px;
+    margin: 6px;
 
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
 
-    background: #4CAF50;
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
     color: white;
 
-    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
 
     transition: 0.3s;
 }
 
 button:hover {
-    background: #388E3C;
     transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 }
 
-        #controls {
-    position: fixed;
-    right: 30px;
-    top: 180px;
+/* MESSAGE */
+#endMessage {
+    margin-top: 10px;
+    font-weight: 600;
+}
 
-    background: white;
+/* SPEED CONTROL SIDE PANEL */
+#controls {
+    position: absolute;
+    right: 20px;
+    top: 120px;
+
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+
     padding: 15px;
-
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-        #controls button {
-            display: block;
-            width: 100%;
-            margin: 5px 0;
-        }
+#controls button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+}
+    
+
+
+
+
+
+
+.legend {
+    font-weight: 500;
+}
+
+.desc {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.featureBox {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    width: 200px;
+}
+
+@keyframes pulse {
+    0%,100% { box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    50% { box-shadow: 0 0 10px rgba(0,150,0,0.4); }
+}
+/* BACKGROUND CONTAINER */
+
+
     </style>
 </head>
 
 <body>
+   
 
 <!-- WELCOME SCREEN -->
 <div id="welcomeScreen">
-    <h1>Invasive Species Control Simulator</h1>
-    <p>An interactive model to understand spread dynamics and control strategies.</p>
-    <button onclick="startGame()">Enter Simulation</button>
+
+    <!-- 🌄 ANIMATION LAYER -->
+    
+       
+    <!-- YOUR CONTENT -->
+     <div> 
+    <h1>🌿 Invasive Species Spread Simulator</h1> 
+     <p>🌿 Experience how invasive species disrupt natural biodiversity.</p>
+</div>
+    <p style="max-width:600px; margin:auto;">
+        Invasive species disrupt ecosystems, spread rapidly, and are difficult to control.
+        This simulation models how such species expand over time and how early intervention
+        strategies can reduce damage.
+    </p>
+
+    <div class="features">
+
+        <div class="featureBox">
+            <h3>🌍 Real-world Problem</h3>
+            <p>Understand ecological spread patterns</p>
+        </div>
+
+        <div class="featureBox">
+            <h3>📊 Simulation Model</h3>
+            <p>Grid-based probabilistic spread</p>
+        </div>
+
+        <div class="featureBox">
+            <h3>🛡 Control Strategy</h3>
+            <p>Place barriers to reduce spread</p>
+        </div>
+
+    </div>
+
+  <button onclick="startGame()">▶ Start Simulation</button>
+
 </div>
 
-<!-- GAME SCREEN -->
-<div id="gameScreen"style="display:none;">
-
+<div id="gameScreen" style="display:none;">
 
     <h1>Simulation Model: Spread Dynamics</h1>
-   <p>
-    🟢 Healthy &nbsp;&nbsp; 🔴 Infected &nbsp;&nbsp; 🔵 Controlled
+
+    <p class="legend">
+        🟢 Healthy &nbsp;&nbsp; 🔴 Infected &nbsp;&nbsp; 🔵 Controlled
     </p>
 
-    <p>
-    Try to reduce the spread as much as possible using control measures.
-    </p>
+    <!-- 🔥 STATS ON TOP -->
+    <div class="statsBox">
+        <div>
+            <h3 id="stats">0%</h3>
+            <p>Infected Area</p>
+        </div>
+        <div>
+            <h3 id="monthDisplay">Month: 0</h3>
+            <p>Time</p>
+        </div>
+    </div>
 
-    <button onclick="beginSimulation()">▶️ Start Simulation</button>
-    <button onclick="resetSimulation()">🔄 Reset</button>
-    <button onclick="goBack()">⬅️ Back</button>
+    <!-- 🔥 BUTTONS -->
+    <div class="btnGroup">
+        <button onclick="beginSimulation()">▶ Start</button>
+        <button onclick="resetSimulation()">🔄 Reset</button>
+        <button onclick="goBack()">⬅ Back</button>
+    </div>
+    <p id="endMessage"></p>
 
-
-    <p id="stats">Infected Area: 0%</p>
-    <h3 id="monthDisplay">Month: 0</h3>
-<p id="message"></p>
-
-<p id="endMessage" style="font-weight:bold; color:red;"></p>
+    <!-- 🔥 GRID CENTER -->
     <div id="grid"></div>
-   
 
+    <!-- 🔥 SPEED -->
     <div id="controls">
         <h3>Speed</h3>
         <button onclick="setSpeed('fast')">Fast</button>
@@ -160,13 +264,14 @@ button:hover {
 </div>
 
 <script>
+    let infectionHistory = [];
 let time = 0;
 let canClick = true;
 let grid;
 let cells = [];
 let interval = null;
 let spreadSpeed = 2000;
-let spreadChance = 0.15;
+let spreadChance = 0.20;
 let blueCount = 0;
 let gameEnded = false;
 let noSpreadCount = 0;
@@ -175,80 +280,111 @@ let noSpreadCount = 0;
 
 // START GAME
 function startGame() {
-    document.getElementById("welcomeScreen").style.display = "none";
-    document.getElementById("gameScreen").style.display = "block";
-    createGrid();
-   
-    
-}
 
-// CREATE GRID
+    console.log("StartGame clicked"); // debug
+
+    let welcome = document.getElementById("welcomeScreen");
+    let game = document.getElementById("gameScreen");
+
+    if (!welcome || !game) {
+        console.error("Screens not found");
+        return;
+    }
+
+    welcome.style.display = "none";
+    game.style.display = "block";
+
+    createGrid(); // show grid immediately
+}
+function beginSimulation() {
+
+    if (interval) return;
+
+    if (cells.length === 0) {
+        createGrid();
+    }
+
+    time = 0;
+    gameEnded = false;
+    canClick = true;
+
+    document.getElementById("monthDisplay").innerText = "Month: 0";
+    document.getElementById("endMessage").innerText = "▶ Simulation Running...";
+
+    interval = setInterval(spreadInfection, spreadSpeed);
+}
 function createGrid() {
 
     grid = document.getElementById("grid");
+
+    if (!grid) {
+        console.error("Grid not found");
+        return;
+    }
+
     grid.innerHTML = "";
     cells = [];
 
-    for (let i = 0; i < 100; i++) {
+    let size = 10;
+
+    for (let i = 0; i < size * size; i++) {
 
         let cell = document.createElement("div");
-        cell.classList.add("cell");
+        cell.className = "cell";
+
+        // green default
         cell.style.backgroundColor = "green";
 
-        // random infection start
+        // random infection
         if (Math.random() < 0.1) {
             cell.style.backgroundColor = "red";
         }
 
-        // CLICK LOGIC
+        // click to control
         cell.addEventListener("click", () => {
-
             if (!canClick) return;
 
             if (!cell.classList.contains("controlled")) {
-
                 cell.classList.add("controlled");
                 cell.style.backgroundColor = "blue";
-
-                blueCount++;
             }
         });
 
-        // ✅ THESE WERE IN WRONG PLACE
         grid.appendChild(cell);
         cells.push(cell);
     }
 
     updateStats();
 }
-// START SIMULATION
-function beginSimulation() {
+    function updateStats() {
+    let infected = 0;
 
-    time = 0;
-    noSpreadCount = 0;  
-    document.getElementById("monthDisplay").innerText = "Month: 0";
+    cells.forEach(cell => {
+        if (cell.style.backgroundColor === "red") {
+            infected++;
+        }
+    });
 
-    clearInterval(interval);
-    interval = setInterval(spreadInfection, spreadSpeed);
+    let percent = Math.round((infected / cells.length) * 100);
+
+    document.getElementById("stats").innerText = percent + "%";
 }
 // SPREAD LOGIC
 
 
 // UPDATE STATS
 function updateStats() {
-
     let infected = 0;
 
-    for (let i = 0; i < cells.length; i++) {
-        if (cells[i].style.backgroundColor === "red") {
+    cells.forEach(cell => {
+        if (cell.style.backgroundColor === "red") {
             infected++;
         }
-    }
+    });
 
     let percent = Math.round((infected / cells.length) * 100);
 
-    document.getElementById("stats").innerText =
-        "Infected Area: " + percent + "%";
+    document.getElementById("stats").innerText = percent + "%";
 }
 function spreadInfection() {
 
@@ -293,46 +429,40 @@ function spreadInfection() {
     // UPDATE STATS
     updateStats();
 
-    // ✅ 👉 PLACE END CONDITION HERE (VERY END)
+let canSpread = cells.some((cell, index) => {
+    if (cell.style.backgroundColor === "red") {
+        let neighbors = [index - 1, index + 1, index - 10, index + 10];
 
-    if (changed) {
-    noSpreadCount = 0; // reset if spread happens
-} else {
-    noSpreadCount++;
-}
+        return neighbors.some(i =>
+            cells[i] && cells[i].style.backgroundColor === "green"
+        );
+    }
+    return false;
+});
 
-// check if any green cells left
-let greenLeft = cells.some(cell =>
-    cell.style.backgroundColor === "green"
-);
-
-// FINAL END CONDITION
-
-if (!canSpreadFurther() && !gameEnded) {
-
+if (!canSpread && !gameEnded) {
     gameEnded = true;
-    clearInterval(interval);
-
-    canClick = false;
-
     showEndMessage();
 }
+// store history
+let infected = cells.filter(c => c.style.backgroundColor === "red").length;
+let percent = Math.round((infected / cells.length) * 100);
+
+infectionHistory.push(percent);
 }
 function showEndMessage() {
 
-    canClick = false; // 🛑 stop placing blue boxes
+    canClick = false;
+    clearInterval(interval);
 
     document.getElementById("endMessage").innerText =
-        "Simulation complete. Analyzing results...";
-
-    document.getElementById("message").innerText =
-        "Spread stabilized after " + time + " months";
+        "✔ Simulation Complete. Analyzing results...";
 
     setTimeout(() => {
         showFinalResult();
-    }, 2000); // ⏱️ 2 second delay
+    }, 2000);
 }
-   function showFinalResult() {
+function showFinalResult() {
 
     let infected = 0;
     let protectedCount = 0;
@@ -347,12 +477,19 @@ function showEndMessage() {
     let infectedPercent = Math.round((infected / total) * 100);
     let protectedPercent = Math.round((protectedCount / total) * 100);
 
+    // 🔥 SAFE STORAGE
     localStorage.setItem("infected", infectedPercent);
     localStorage.setItem("protected", protectedPercent);
     localStorage.setItem("time", time);
 
-    console.log("Going to result page...");
+    // 🔥 VERY IMPORTANT (history fix)
+    if (!infectionHistory || infectionHistory.length === 0) {
+        infectionHistory = [infectedPercent];
+    }
 
+    localStorage.setItem("history", JSON.stringify(infectionHistory));
+
+    // GO TO RESULT
     window.location.href = "result.html";
 }
 // RESET
@@ -369,7 +506,7 @@ noSpreadCount = 0;
     gameEnded = false;
 
     document.getElementById("endMessage").innerText = "";
-    document.getElementById("stats").innerText = "Infected Area: 0%";
+    document.getElementById("stats").innerText = percent + "%";
 
     createGrid();
     cells.forEach(cell => {
@@ -379,10 +516,9 @@ noSpreadCount = 0;
 
 // SPEED CONTROL
 function setSpeed(type) {
-    clearInterval(interval);
 
     if (type === "fast") {
-        spreadSpeed = 1000;
+        spreadSpeed = 1500;
         spreadChance = 0.2;
     } else if (type === "normal") {
         spreadSpeed = 2500;
@@ -392,7 +528,11 @@ function setSpeed(type) {
         spreadChance = 0.15;
     }
 
-    interval = setInterval(spreadInfection, spreadSpeed);
+    // ONLY restart if simulation is already running
+    if (interval) {
+        clearInterval(interval);
+        interval = setInterval(spreadInfection, spreadSpeed);
+    }
 }
 function goBack() {
     clearInterval(interval);

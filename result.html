@@ -1,141 +1,218 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simulation Results</title>
+    <title>Simulation Result</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-      body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(to right, #56ab2f, #a8e063);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
 
-      .container {
-    background: rgba(255,255,255,0.9);
-    padding: 40px;
-    border-radius: 20px;
-    width: 400px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-       h1, .stat {
-    color: #14532d;
-}
-        .stat {
-            font-size: 20px;
-            margin: 15px 0;
+            background: linear-gradient(-45deg, #134e5e, #2e7d32, #66bb6a, #a5d6a7);
+            background-size: 400% 400%;
+            animation: gradientFlow 12s ease infinite;
+
+            color: white;
+            text-align: center;
         }
 
-        .bar {
-            height: 20px;
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-size: 34px;
+        }
+
+        /* MAIN CARD */
+        .box {
+            background: rgba(0,0,0,0.55);
+            padding: 25px;
+            margin: 25px auto;
+
+            width: 85%;
+            max-width: 900px;
+
+            border-radius: 18px;
+
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .box h3 {
+            color: #a5d6a7;
+        }
+
+        .box p {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 17px;
+        }
+
+        /* GRAPH ROW */
+        .graphRow {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px auto;
+        }
+
+        .graphBox {
+            background: rgba(0,0,0,0.55);
+            padding: 20px;
+            border-radius: 15px;
+            width: 400px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 250px !important;
+        }
+
+        /* BUTTON */
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+
+            border: none;
             border-radius: 10px;
-            margin: 10px 0;
-            background: #334155;
-            overflow: hidden;
+
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            color: white;
+
+            font-weight: bold;
+            font-size: 16px;
+
+            cursor: pointer;
+
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: 0.3s;
         }
 
-        .fill {
-            height: 100%;
-            border-radius: 10px;
+        button:hover {
+            transform: scale(1.08);
         }
-
-        .infected {
-            background: #ef4444;
-        }
-
-        .protected {
-            background: #3b82f6;
-        }
-
-       button {
-    margin-top: 25px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 12px;
-    background: #166534;   /* darker green */
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background: #14532d;
-    transform: scale(1.05);
-}
-        
-        .message {
-    color: #166534;
-}
     </style>
 </head>
 
 <body>
 
-<div class="container">
+<h1>📊 Simulation Result</h1>
 
-    <h1>📊 Simulation Results</h1>
+<!-- SUMMARY -->
+<div class="box">
+    <h3>📌 Summary</h3>
+    <p id="time"></p>
+    <p id="infected"></p>
+    <p id="protected"></p>
+</div>
 
-    <div class="stat">🔴 Infected Area: <span id="infectedText"></span>%</div>
-    <div class="bar">
-        <div id="infectedBar" class="fill infected"></div>
+<!-- GRAPHS -->
+<div class="graphRow">
+
+    <div class="graphBox">
+        <h3>📈 Spread Over Time</h3>
+        <canvas id="graph"></canvas>
     </div>
 
-    <div class="stat">🔵 Protected Area: <span id="protectedText"></span>%</div>
-    <div class="bar">
-        <div id="protectedBar" class="fill protected"></div>
+    <div class="graphBox">
+        <h3>⚖️ Comparison</h3>
+        <canvas id="compare"></canvas>
     </div>
-<div class="stat">🛑 Control Measures Used: <span id="blueText"></span></div>
-    <div class="stat">⏱️ Time Taken: <span id="timeText"></span> months</div>
 
-    <div class="message" id="finalMessage"></div>
+</div>
 
-    <button onclick="goHome()">🔁 Run Again</button>
+<!-- INSIGHT -->
+<div class="box">
+    <h3>🧠 Insight</h3>
+    <p id="message"></p>
 
+    <button onclick="restart()">🔄 Run Again</button>
 </div>
 
 <script>
 
-let infected = localStorage.getItem("infected");
-let protectedArea = localStorage.getItem("protected");
-let time = localStorage.getItem("time");
+// GET DATA SAFELY
+let infected = Number(localStorage.getItem("infected")) || 0;
+let protectedArea = Number(localStorage.getItem("protected")) || 0;
+let time = Number(localStorage.getItem("time")) || 0;
+let history = JSON.parse(localStorage.getItem("history")) || [];
 
-// SET TEXT
-document.getElementById("infectedText").innerText = infected;
-document.getElementById("protectedText").innerText = protectedArea;
-document.getElementById("timeText").innerText = time;
+// DISPLAY DATA
+document.getElementById("time").innerText = "⏱ Time Taken: " + time + " months";
+document.getElementById("infected").innerText = "🔴 Infected Area: " + infected + "%";
+document.getElementById("protected").innerText = "🔵 Protected Area: " + protectedArea + "%";
 
-// SET BARS
-document.getElementById("infectedBar").style.width = infected + "%";
-document.getElementById("protectedBar").style.width = protectedArea + "%";
+// 📈 TIME GRAPH
+new Chart(document.getElementById("graph"), {
+    type: "line",
+    data: {
+        labels: history.map((_, i) => "M" + (i + 1)),
+        datasets: [{
+            label: "Infection %",
+            data: history,
+            borderColor: "#ff5252",
+            backgroundColor: "rgba(255,82,82,0.2)",
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { labels: { color: "white" } }
+        },
+        scales: {
+            x: { ticks: { color: "white" } },
+            y: { ticks: { color: "white" } }
+        }
+    }
+});
 
-// SMART MESSAGE
+// ⚖️ COMPARISON GRAPH
+new Chart(document.getElementById("compare"), {
+    type: "bar",
+    data: {
+        labels: ["Infected", "Protected"],
+        datasets: [{
+            data: [infected, protectedArea],
+            backgroundColor: ["#e53935", "#1e88e5"]
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: { ticks: { color: "white" } },
+            y: { ticks: { color: "white" } }
+        }
+    }
+});
+
+// 🧠 SMART MESSAGE
 let msg = "";
 
-if (infected > 70) {
-    msg = "⚠️ High spread observed. Control measures were insufficient.";
+if (infected < 30) {
+    msg = "🌱 Excellent control strategy. Early intervention prevented large-scale ecological damage.";
 } 
-else if (infected > 40) {
-    msg = "⚠️ Moderate spread. Early intervention could improve results.";
+else if (infected < 60) {
+    msg = "⚠ Moderate spread observed. Delayed control allowed partial ecosystem disruption.";
 } 
 else {
-    msg = "✅ Spread successfully controlled. Effective intervention!";
+    msg = "🔥 Severe spread occurred. Lack of early intervention led to widespread ecological impact.";
 }
 
-document.getElementById("finalMessage").innerText = msg;
+document.getElementById("message").innerText = msg;
 
-// BACK BUTTON
-function goHome() {
+// RESTART
+function restart() {
     window.location.href = "index.html";
 }
-let blue = localStorage.getItem("blue");
-document.getElementById("blueText").innerText = blue;
 
 </script>
 
