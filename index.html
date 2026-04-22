@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -458,6 +458,10 @@
         padding: 22px;
       }
     }
+        #liveChart {
+      display: block;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
   </style>
 </head>
 <body>
@@ -623,14 +627,21 @@
           </div>
         </div>
 
+               <div class="miniCard">
+          <h4>Live Infection Trend</h4>
+          <canvas id="liveChart" width="240" height="140" style="width:100%; background: rgba(255,255,255,0.03); border-radius: 12px; margin-top: 8px;"></canvas>
+          <p style="margin-top:10px;">
+            Real-time infected area growth across simulation months.
+          </p>
+        </div>
+
         <div class="miniCard">
           <h4>Project Note</h4>
           <p>
             This simplified simulator focuses on intervention barriers and infected-area monitoring, both of
-            which are core expected features of the project brief. [file:1]
+            which are core expected features of the project brief.
           </p>
         </div>
-
         <p class="footerHint">
           Tip: Place blue cells near red clusters early to improve containment.
         </p>
@@ -650,6 +661,72 @@
     let spreadChance = 0.20;
     let gameEnded = false;
     let size = 10;
+        function drawLiveChart() {
+      const canvas = document.getElementById("liveChart");
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.10)";
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i <= 4; i++) {
+        const y = 20 + (i * (h - 40)) / 4;
+        ctx.beginPath();
+        ctx.moveTo(30, y);
+        ctx.lineTo(w - 10, y);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(30, 10);
+      ctx.lineTo(30, h - 20);
+      ctx.lineTo(w - 10, h - 20);
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.stroke();
+
+      if (infectionHistory.length === 0) {
+        ctx.fillStyle = "rgba(180, 210, 190, 0.7)";
+        ctx.font = "12px Segoe UI";
+        ctx.fillText("No live data yet", 70, h / 2);
+        return;
+      }
+
+      const maxPoints = Math.max(infectionHistory.length - 1, 1);
+      ctx.beginPath();
+
+      infectionHistory.forEach((value, index) => {
+        const x = 30 + ((w - 45) * index) / maxPoints;
+        const y = (h - 20) - ((h - 40) * value) / 100;
+
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+
+      ctx.strokeStyle = "#75f0a9";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      infectionHistory.forEach((value, index) => {
+        const x = 30 + ((w - 45) * index) / maxPoints;
+        const y = (h - 20) - ((h - 40) * value) / 100;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "#9cf2be";
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "#b8c8bf";
+      ctx.font = "11px Segoe UI";
+      ctx.fillText("100%", 2, 18);
+      ctx.fillText("0%", 10, h - 18);
+      ctx.fillText("Month", w - 50, h - 4);
+    }
 
     function startGame() {
       document.getElementById("welcomeScreen").style.display = "none";
@@ -696,6 +773,7 @@
           }
 
           updateStats();
+                drawLiveChart();
         });
 
         grid.appendChild(cell);
@@ -716,7 +794,7 @@
       gameEnded = false;
       canClick = true;
       infectionHistory = [];
-
+      drawLiveChart();
       document.getElementById("monthDisplay").innerText = "0";
       document.getElementById("runStatus").innerText = "Running";
       document.getElementById("stateLabel").innerText = "Running";
@@ -784,6 +862,7 @@
       let infected = cells.filter(c => c.classList.contains("infected")).length;
       let percent = Math.round((infected / cells.length) * 100);
       infectionHistory.push(percent);
+            drawLiveChart();
 
       let canSpread = cells.some((cell, index) => {
         if (cell.classList.contains("infected")) {
@@ -832,6 +911,7 @@
       gameEnded = false;
       canClick = true;
       infectionHistory = [];
+            drawLiveChart();
 
       document.getElementById("monthDisplay").innerText = "0";
       document.getElementById("stats").innerText = "0%";
@@ -846,14 +926,14 @@
 
     function setSpeed(type) {
       if (type === "fast") {
-        spreadSpeed = 1200;
-        spreadChance = 0.20;
+        spreadSpeed = 1500;
+        spreadChance = 0.15;
       } else if (type === "normal") {
-        spreadSpeed = 2000;
-        spreadChance = 0.20;
+        spreadSpeed = 2500;
+        spreadChance = 0.1;
       } else {
-        spreadSpeed = 3200;
-        spreadChance = 0.20;
+        spreadSpeed = 3500;
+        spreadChance = 0.05;
       }
 
       if (interval) {
