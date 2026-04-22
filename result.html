@@ -1,264 +1,442 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Simulation Result</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-/* MAIN CARD */
-
-.resultContainer {
-    width: 95%;
-    max-width: 1100px;
-
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(12px);
-
-    padding: 20px;
-    border-radius: 16px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-/* HEADER */
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* STATS ROW */
-.statsRow {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin: 25px 0;
-}
-
-.statBox {
-    flex: 1;
-    background: rgba(255,255,255,0.08);
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.statBox h2 {
-    margin: 0;
-    font-size: 26px;
-}
-
-/* COMPARISON */
-.comparison {
-    display: flex;
-    gap: 20px;
-    margin: 25px 0;
-}
-
-.compareBox {
-    flex: 1;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.before {
-    background: rgba(255, 87, 87, 0.2);
-}
-
-.after {
-    background: rgba(76, 175, 80, 0.2);
-}
-
-/* GRAPH */
-.chartBox {
-    margin-top: 30px;
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    height: 300px;   /* 👈 ADD THIS */
-}
-
-/* INSIGHTS */
-.insight {
-    margin-top: 25px;
-    background: rgba(255,255,255,0.08);
-    padding: 15px;
-    border-radius: 12px;
-    line-height: 1.6;
-}
-
-/* BUTTON */
-button {
-    margin-top: 25px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-
-    background: linear-gradient(135deg, #00c853, #64dd17);
-    color: white;
-
-    font-weight: bold;
-    cursor: pointer;
-}
-button:hover {
-    transform: scale(1.05);
-}
-.dashboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="resultContainer">
-
-    <h1>📊 Ecological Spread Analysis Dashboard</h1>
-
-    <!-- BASIC STATS -->
-    <div class="statsRow">
-        <div class="statBox">
-            <h2 id="time"></h2>
-            <p>Time to Stabilization</p>
-        </div>
-
-        <div class="statBox">
-            <h2 id="infected"></h2>
-            <p>Final Infected Area</p>
-        </div>
-    </div>
-
-    <!-- BEFORE vs AFTER -->
-    <div class="comparison">
-        <div class="compareBox before">
-            <h3>Without Control</h3>
-            <p id="before"></p>
-        </div>
-
-        <div class="compareBox after">
-            <h3>With Control</h3>
-            <p id="after"></p>
-        </div>
-    </div>
-
-    <!-- GRAPH -->
-    <div class="chartBox">
-        <canvas id="timeChart"></canvas>
-    </div>
-
-    <!-- SCIENTIFIC INSIGHT -->
-    <div class="insight" id="insightText"></div>
-    <div class="insight">
-    <h3>📈 Model Interpretation</h3>
-    <p id="analysisText"></p>
-</div>
-
-    <button onclick="restart()">🔁 Run Simulation Again</button>
-<div class="insight">
-    <h3>🌍 Real-World Implication</h3>
-    <p>
-        This model highlights the importance of early intervention in ecological systems.
-        Delayed action significantly increases spread, making containment exponentially harder.
-    </p>
-</div>
-</div>
-
-<script>
-   
-
-let infected = localStorage.getItem("infected") || 0;
-let time = localStorage.getItem("time") || 0;
-
-// assume worst case without control ~90%
-let noControl = 90;
-
-// DISPLAY VALUES
-document.getElementById("time").innerText = time + " months";
-document.getElementById("infected").innerText = infected + "%";
-
-document.getElementById("before").innerText = noControl + "% spread";
-document.getElementById("after").innerText = infected + "% spread";
-
-// INSIGHT TEXT (scientific)
-let insight = "";
-
-if (infected < 30) {
-    insight = "Early intervention significantly reduced spread. The containment strategy was highly effective, limiting ecosystem disruption.";
-}
-else if (infected < 60) {
-    insight = "Moderate spread observed. Control measures slowed expansion but were applied later than optimal timing.";
-}
-else {
-    insight = "High spread detected. Delayed or insufficient intervention allowed invasive species to dominate the system.";
-}
-
-document.getElementById("insightText").innerText = insight;
-
-
-// GRAPH (time vs spread)
-let labels = [];
-let data = [];
-
-for (let i = 0; i <= time; i++) {
-    labels.push("M" + i);
-    data.push(Math.min(infected, i * (infected / time)));
-}
-
-new Chart(document.getElementById("timeChart"), {
-    type: "line",
-    data: {
-        labels: labels,
-        datasets: [{
-            label: "Spread Over Time",
-            data: data,
-            borderColor: "#00e676",
-            fill: false,
-            tension: 0.3
-        }]
-    },
-    options: {
-        plugins: {
-            legend: { labels: { color: "white" } }
-        },
-        scales: {
-            x: { ticks: { color: "white" } },
-            y: { ticks: { color: "white" } }
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation Result</title>
+  <style>
+    * {
+      box-sizing: border-box;
     }
-});
 
-function restart() {
-    window.location.href = "index.html";
-}
- let analysis = "";
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(61, 220, 132, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(78, 168, 255, 0.08), transparent 22%),
+        linear-gradient(135deg, #07110d, #0c1814 45%, #08130f 100%);
+      color: #eef7f1;
+      min-height: 100vh;
+      padding: 24px;
+    }
 
-if (infected < 30) {
-    analysis = "The system demonstrates strong resistance due to early intervention. Spread was contained before reaching critical mass.";
-}
-else if (infected < 60) {
-    analysis = "The spread shows moderate containment. Intervention slowed diffusion but did not fully suppress propagation.";
-}
-else {
-    analysis = "The system reached high saturation, indicating delayed or insufficient control measures.";
-}
-document.getElementById("analysisText").innerText = analysis;
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .heroCard {
+      background: rgba(14, 28, 22, 0.88);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(61, 220, 132, 0.12);
+      color: #9cf2be;
+      border: 1px solid rgba(61, 220, 132, 0.18);
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+    }
+
+    .subtitle {
+      color: #b7c6be;
+      line-height: 1.7;
+      max-width: 760px;
+      margin: 0;
+    }
+
+    .statsGrid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .statCard {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .statCard p {
+      margin: 0 0 8px;
+      color: #aab9b1;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .statCard h2 {
+      margin: 0;
+      font-size: 28px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mainGrid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: rgba(14, 28, 22, 0.88);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .panelText {
+      color: #a9bbb1;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .resultTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .resultTable th,
+    .resultTable td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+    }
+
+    .resultTable th {
+      color: #9cf2be;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .resultTable td:last-child {
+      font-weight: 700;
+    }
+
+    .comparisonBox {
+      display: grid;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .compareCard {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .compareCard h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .compareCard p {
+      margin: 0;
+      color: #b3c2ba;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .highlight {
+      color: #9cf2be;
+      font-weight: 700;
+    }
+
+    .danger {
+      color: #ff9b8d;
+      font-weight: 700;
+    }
+
+    .safe {
+      color: #75c0ff;
+      font-weight: 700;
+    }
+
+    .actions {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button, a.buttonLink {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover,
+    a.buttonLink:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #38d67a, #75f0a9);
+      color: #062011;
+    }
+
+    .secondary-btn {
+      background: rgba(255,255,255,0.06);
+      color: #eef7f1;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footerNote {
+      margin-top: 18px;
+      color: #9db0a6;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 980px) {
+      .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .mainGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .statsGrid {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 16px;
+      }
+
+      .heroCard,
+      .panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="heroCard">
+      <div class="badge">Simulation Complete</div>
+      <h1>Invasive Species Result Dashboard</h1>
+      <p class="subtitle">
+        This page presents the final habitat impact after simulation, including infected area,
+        controlled area, ecological interpretation, and intervention effectiveness.
+      </p>
+
+      <div class="statsGrid">
+        <div class="statCard">
+          <p>Final Infected %</p>
+          <h2 id="finalPercent">0%</h2>
+        </div>
+        <div class="statCard">
+          <p>Infected Cells</p>
+          <h2 id="infectedCells">0</h2>
+        </div>
+        <div class="statCard">
+          <p>Controlled Cells</p>
+          <h2 id="controlledCells">0</h2>
+        </div>
+        <div class="statCard">
+          <p>Total Months</p>
+          <h2 id="totalMonths">0</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="mainGrid">
+      <div class="panel">
+        <h3>Final Ecological Summary</h3>
+        <p class="panelText">
+          The result table below summarizes the final state of the habitat after spread simulation and manual control-zone intervention.
+        </p>
+
+        <table class="resultTable">
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Total habitat cells</td>
+            <td id="totalCellsText">100</td>
+          </tr>
+          <tr>
+            <td>Final infected cells</td>
+            <td id="infectedCellsText">0</td>
+          </tr>
+          <tr>
+            <td>Final controlled cells</td>
+            <td id="controlledCellsText">0</td>
+          </tr>
+          <tr>
+            <td>Final infected area percentage</td>
+            <td id="finalPercentText">0%</td>
+          </tr>
+          <tr>
+            <td>Simulation months completed</td>
+            <td id="monthsText">0</td>
+          </tr>
+        </table>
+
+        <div class="footerNote">
+          These outputs reflect the expected project reporting style, especially infected area count and percentage after simulation. [file:1]
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Intervention Insight</h3>
+        <p class="panelText">
+          The project brief expects a comparison-oriented result view for intervention impact, so this panel gives a simple interpretation of the final state. [file:1]
+        </p>
+
+        <div class="comparisonBox">
+          <div class="compareCard">
+            <h4>Spread Status</h4>
+            <p id="spreadStatus">
+              Infection outcome will appear here.
+            </p>
+          </div>
+
+          <div class="compareCard">
+            <h4>Control Effect</h4>
+            <p id="controlStatus">
+              Control performance will appear here.
+            </p>
+          </div>
+
+          <div class="compareCard">
+            <h4>Project Conclusion</h4>
+            <p id="conclusionText">
+              Final ecological interpretation will appear here.
+            </p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a href="index.html" class="buttonLink secondary-btn">Back to Simulation</a>
+          <button class="primary-btn" onclick="downloadResult()">Download Summary</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   
+  const params = new URLSearchParams(window.location.search);
+
+  let totalCells = Number(params.get("totalCells")) || 100;
+  let infectedCells = Number(params.get("infectedCells")) || 0;
+  let controlledCells = Number(params.get("controlledCells")) || 0;
+  let totalMonths = Number(params.get("totalMonths")) || 0;
+
+  let finalPercent = totalCells ? Math.round((infectedCells / totalCells) * 100) : 0;
+
+  document.getElementById("finalPercent").innerText = finalPercent + "%";
+  document.getElementById("infectedCells").innerText = infectedCells;
+  document.getElementById("controlledCells").innerText = controlledCells;
+  document.getElementById("totalMonths").innerText = totalMonths;
+
+  document.getElementById("totalCellsText").innerText = totalCells;
+  document.getElementById("infectedCellsText").innerText = infectedCells;
+  document.getElementById("controlledCellsText").innerText = controlledCells;
+  document.getElementById("finalPercentText").innerText = finalPercent + "%";
+  document.getElementById("monthsText").innerText = totalMonths;
+
+  let spreadStatus = "";
+  let controlStatus = "";
+  let conclusionText = "";
+
+  if (finalPercent >= 60) {
+    spreadStatus = "The habitat shows severe invasive spread across the ecosystem.";
+  } else if (finalPercent >= 30) {
+    spreadStatus = "The habitat shows moderate invasive spread and partial containment.";
+  } else {
+    spreadStatus = "The habitat shows relatively low spread and better containment.";
+  }
+
+  if (controlledCells >= 20) {
+    controlStatus = "Strong intervention was applied and likely reduced spread significantly.";
+  } else if (controlledCells >= 10) {
+    controlStatus = "Moderate intervention was applied during the simulation.";
+  } else {
+    controlStatus = "Limited intervention was applied, so containment was weaker.";
+  }
+
+  if (finalPercent < 30 && controlledCells > 0) {
+    conclusionText = "Early and active control-zone placement appears effective in limiting invasive spread.";
+  } else if (finalPercent >= 60) {
+    conclusionText = "The simulation suggests that delayed or insufficient intervention can allow rapid infestation.";
+  } else {
+    conclusionText = "The outcome suggests partial control success, but stronger intervention could improve protection.";
+  }
+
+  document.getElementById("spreadStatus").innerHTML =
+    'Final spread severity: <span class="danger">' + finalPercent + '% infected</span>. ' + spreadStatus;
+
+  document.getElementById("controlStatus").innerHTML =
+    'Controlled region count: <span class="safe">' + controlledCells + '</span>. ' + controlStatus;
+
+  document.getElementById("conclusionText").innerHTML =
+    '<span class="highlight">Interpretation:</span> ' + conclusionText;
+
+  function downloadResult() {
+    let text =
+`Invasive Species Spread Simulator - Result Summary
+
+Total Cells: ${totalCells}
+Infected Cells: ${infectedCells}
+Controlled Cells: ${controlledCells}
+Final Infected Percentage: ${finalPercent}%
+Simulation Months: ${totalMonths}
+
+Interpretation:
+${conclusionText}
+`;
+
+    let blob = new Blob([text], { type: "text/plain" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "simulation_result.txt";
+    link.click();
+  }
 </script>
-
+  </script>
 </body>
 </html>
+   

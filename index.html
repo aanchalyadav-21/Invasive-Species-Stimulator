@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invasive Species Simulator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(61, 220, 132, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(78, 168, 255, 0.08), transparent 22%),
+        linear-gradient(135deg, #07110d, #0c1814 45%, #08130f 100%);
+      color: #eef7f1;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #38d67a, #75f0a9);
+      color: #062011;
+    }
+
+    .secondary-btn {
+      background: rgba(255,255,255,0.06);
+      color: #eef7f1;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .danger-btn {
+      background: linear-gradient(135deg, #ff6b57, #ff9687);
+      color: white;
+    }
+
+    #welcomeScreen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 28px;
+    }
+
+    .welcomeCard {
+      width: min(980px, 100%);
+      background: rgba(14, 28, 22, 0.88);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(61, 220, 132, 0.12);
+      color: #9cf2be;
+      border: 1px solid rgba(61, 220, 132, 0.18);
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .welcomeCard h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      margin-bottom: 12px;
+    }
+
+    .welcomeCard .subtitle {
+      color: #b2c2b9;
+      line-height: 1.7;
+      max-width: 760px;
+      font-size: 16px;
+      margin-bottom: 26px;
+    }
+
+    .featureGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin: 26px 0;
+    }
+
+    .featureCard {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .featureCard h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .featureCard p {
+      margin: 0;
+      font-size: 13px;
+      color: #b2c2b9;
+      line-height: 1.6;
+    }
+
+    .infoBox {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 18px;
+      color: #b2c2b9;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .welcomeActions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #gameScreen {
+      display: none;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .appShell {
+      max-width: 1400px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 270px 1fr 280px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(14, 28, 22, 0.88);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+    }
+
+    .sidebar,
+    .rightPanel {
+      padding: 18px;
+    }
+
+    .mainPanel {
+      padding: 18px;
+      background: rgba(18, 35, 28, 0.92);
+    }
+
+    .panelTitle {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .panelText {
+      color: #a9bbb1;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .sectionTitle {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #b8c8bf;
+      margin: 0 0 10px;
+    }
+
+    .buttonGroup {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .smallGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .noteBox {
+      background: rgba(61, 220, 132, 0.06);
+      border: 1px solid rgba(61, 220, 132, 0.12);
+      color: #bdeecd;
+      border-radius: 14px;
+      padding: 14px;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .topHeader {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .headingBlock h2 {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .headingBlock p {
+      margin: 0;
+      color: #a9bbb1;
+      line-height: 1.6;
+      font-size: 14px;
+      max-width: 720px;
+    }
+
+    .statusPill {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(61, 220, 132, 0.08);
+      border: 1px solid rgba(61, 220, 132, 0.16);
+      color: #bdf4d0;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .statsGrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .statCard {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .statCard p {
+      margin: 0 0 8px;
+      color: #a9bbb1;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .statCard h3 {
+      margin: 0;
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gridWrap {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: auto;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(10, 42px);
+      gap: 8px;
+      justify-content: center;
+      margin: 0 auto;
+      min-width: max-content;
+    }
+
+    .cell {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(47, 100, 71, 0.95), rgba(31, 68, 48, 0.95));
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+    }
+
+    .cell:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.16);
+    }
+
+    .infected {
+      background: radial-gradient(circle at 30% 30%, #ff8a70, #c62828);
+      box-shadow: 0 0 12px rgba(255, 80, 60, 0.45);
+    }
+
+    .controlled {
+      background: linear-gradient(135deg, #57b3ff, #185bdb);
+      box-shadow: 0 0 10px rgba(60, 150, 255, 0.35);
+    }
+
+    .gridFooter {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #a9bbb1;
+      font-size: 13px;
+    }
+
+    .legendItem {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legendColor {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .healthyColor {
+      background: #2b6144;
+    }
+
+    .infectedColor {
+      background: #d33b2f;
+    }
+
+    .controlledColor {
+      background: #2e79ff;
+    }
+
+    .messageBox {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 60px;
+      color: #b6c5bd;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .miniCard {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .miniCard h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .miniCard p {
+      margin: 0;
+      color: #a9bbb1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .valueList {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .valueRow {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      padding-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .valueRow span:first-child {
+      color: #a9bbb1;
+    }
+
+    .strongValue {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footerHint {
+      color: #9fb1a7;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1180px) {
+      .appShell {
+        grid-template-columns: 1fr;
+      }
+
+      .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .statsGrid {
+        grid-template-columns: 1fr;
+      }
+
+      .smallGrid {
+        grid-template-columns: 1fr;
+      }
+
+      #grid {
+        grid-template-columns: repeat(10, 30px);
+        gap: 5px;
+      }
+
+      .cell {
+        width: 30px;
+        height: 30px;
+      }
+
+      .welcomeCard {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="welcomeScreen">
+    <div class="welcomeCard">
+      <div class="badge">SDG 15 • Life on Land</div>
+      <h1>Invasive Species Spread Simulator</h1>
+      <p class="subtitle">
+        A grid-based ecological model that demonstrates how invasive species spread across habitat areas
+        and how control zones can reduce ecosystem damage over time.
+      </p>
+
+      <div class="featureGrid">
+        <div class="featureCard">
+          <h3>Dynamic Spread</h3>
+          <p>Observe how infection expands monthly across nearby cells.</p>
+        </div>
+        <div class="featureCard">
+          <h3>Control Zones</h3>
+          <p>Click habitat cells to mark blue intervention regions and block spread.</p>
+        </div>
+        <div class="featureCard">
+          <h3>Live Monitoring</h3>
+          <p>Track months elapsed, infected percentage, and controlled cells.</p>
+        </div>
+        <div class="featureCard">
+          <h3>Result Analysis</h3>
+          <p>Prepare the simulation for later comparison and ecological interpretation.</p>
+        </div>
+      </div>
+
+      <div class="infoBox">
+        <strong>Model Overview:</strong><br />
+        Initial infected cells appear automatically. Users apply blue control zones by clicking cells, and the
+        simulator shows how intervention affects overall spread across the habitat grid. [file:1]
+      </div>
+
+      <div class="welcomeActions">
+        <button class="primary-btn" onclick="startGame()">Start Simulation</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameScreen">
+    <div class="appShell">
+
+      <aside class="panel sidebar">
+        <h2 class="panelTitle">Simulation Controls</h2>
+        <p class="panelText">
+          Start the spread process, adjust speed, and place blue control zones directly on the grid.
+        </p>
+
+        <p class="sectionTitle">Actions</p>
+        <div class="buttonGroup">
+          <button class="primary-btn" onclick="beginSimulation()">Start Simulation</button>
+          <button class="secondary-btn" onclick="pauseSimulation()">Pause</button>
+          <button class="danger-btn" onclick="resetSimulation()">Reset</button>
+        </div>
+
+        <p class="sectionTitle">Speed Control</p>
+        <div class="smallGrid">
+          <button class="secondary-btn" onclick="setSpeed('fast')">Fast</button>
+          <button class="secondary-btn" onclick="setSpeed('normal')">Normal</button>
+          <button class="secondary-btn" onclick="setSpeed('slow')">Slow</button>
+          <button class="secondary-btn" onclick="goBack()">Back</button>
+        </div>
+
+        <div class="noteBox" style="margin-top: 18px;">
+          <strong>How it works:</strong><br />
+          Red cells represent infected habitat. Click any cell to apply control. Clicking a red infected cell
+          also converts it into a blue controlled zone for treatment. [file:1]
+        </div>
+      </aside>
+
+      <main class="panel mainPanel">
+        <div class="topHeader">
+          <div class="headingBlock">
+            <h2>Ecological Spread Dashboard</h2>
+            <p>
+              This simulator uses adjacent-cell spread logic and user-placed control zones to demonstrate
+              invasive expansion and ecological containment.
+            </p>
+          </div>
+          <div class="statusPill" id="runStatus">Ready</div>
+        </div>
+
+        <div class="statsGrid">
+          <div class="statCard">
+            <p>Infected Area</p>
+            <h3 id="stats">0%</h3>
+          </div>
+          <div class="statCard">
+            <p>Months</p>
+            <h3 id="monthDisplay">0</h3>
+          </div>
+          <div class="statCard">
+            <p>Controlled Cells</p>
+            <h3 id="controlCount">0</h3>
+          </div>
+          <div class="statCard">
+            <p>Grid Cells</p>
+            <h3 id="gridCount">100</h3>
+          </div>
+        </div>
+
+        <div class="gridWrap">
+          <div id="grid"></div>
+
+          <div class="gridFooter">
+            <div class="legend">
+              <div class="legendItem">
+                <span class="legendColor healthyColor"></span>
+                <span>Habitat</span>
+              </div>
+              <div class="legendItem">
+                <span class="legendColor infectedColor"></span>
+                <span>Infected</span>
+              </div>
+              <div class="legendItem">
+                <span class="legendColor controlledColor"></span>
+                <span>Controlled</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="messageBox" id="endMessage">
+            Click cells to place blue control zones before or during the spread.
+          </div>
+        </div>
+      </main>
+
+      <aside class="panel rightPanel">
+        <h2 class="panelTitle">Live Insights</h2>
+        <p class="panelText">
+          Current ecological state and simulation summary.
+        </p>
+
+        <div class="miniCard">
+          <h4>Current Interaction</h4>
+          <p>Click any cell to add treatment. Red infected cells can also be converted into blue controlled cells.</p>
+        </div>
+
+        <div class="miniCard">
+          <h4>Simulation Summary</h4>
+          <div class="valueList">
+            <div class="valueRow">
+              <span>Spread Pattern</span>
+              <span class="strongValue">4-Neighbour</span>
+            </div>
+            <div class="valueRow">
+              <span>Initial State</span>
+              <span class="strongValue">Auto-infected</span>
+            </div>
+            <div class="valueRow">
+              <span>Control Method</span>
+              <span class="strongValue">Manual Click</span>
+            </div>
+            <div class="valueRow">
+              <span>State</span>
+              <span class="strongValue" id="stateLabel">Setup</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="miniCard">
+          <h4>Project Note</h4>
+          <p>
+            This simplified simulator focuses on intervention barriers and infected-area monitoring, both of
+            which are core expected features of the project brief. [file:1]
+          </p>
+        </div>
+
+        <p class="footerHint">
+          Tip: Place blue cells near red clusters early to improve containment.
+        </p>
+      </aside>
+
+    </div>
+  </div>
+
+  <script>
+    let infectionHistory = [];
+    let time = 0;
+    let canClick = true;
+    let grid;
+    let cells = [];
+    let interval = null;
+    let spreadSpeed = 2000;
+    let spreadChance = 0.20;
+    let gameEnded = false;
+    let size = 10;
+
+    function startGame() {
+      document.getElementById("welcomeScreen").style.display = "none";
+      document.getElementById("gameScreen").style.display = "block";
+      createGrid();
+    }
+
+    function createGrid() {
+      grid = document.getElementById("grid");
+
+      if (!grid) {
+        console.error("Grid element not found");
+        return;
+      }
+
+      grid.innerHTML = "";
+      cells = [];
+
+      document.getElementById("gridCount").innerText = size * size;
+
+      for (let i = 0; i < size * size; i++) {
+        let cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = i;
+
+        if (Math.random() < 0.1) {
+          cell.classList.add("infected");
+        }
+
+        cell.addEventListener("click", () => {
+          if (!canClick) return;
+
+          if (cell.classList.contains("infected")) {
+            cell.classList.remove("infected");
+            cell.classList.add("controlled");
+            updateStats();
+            return;
+          }
+
+          if (cell.classList.contains("controlled")) {
+            cell.classList.remove("controlled");
+          } else {
+            cell.classList.add("controlled");
+          }
+
+          updateStats();
+        });
+
+        grid.appendChild(cell);
+        cells.push(cell);
+      }
+
+      updateStats();
+    }
+
+    function beginSimulation() {
+      if (interval) return;
+
+      if (cells.length === 0) {
+        createGrid();
+      }
+
+      time = 0;
+      gameEnded = false;
+      canClick = true;
+      infectionHistory = [];
+
+      document.getElementById("monthDisplay").innerText = "0";
+      document.getElementById("runStatus").innerText = "Running";
+      document.getElementById("stateLabel").innerText = "Running";
+      document.getElementById("endMessage").innerText =
+        "Simulation running. Infection is spreading across adjacent cells.";
+
+      interval = setInterval(spreadInfection, spreadSpeed);
+    }
+
+    function pauseSimulation() {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+        document.getElementById("runStatus").innerText = "Paused";
+        document.getElementById("stateLabel").innerText = "Paused";
+        document.getElementById("endMessage").innerText = "Simulation paused.";
+      }
+    }
+
+    function updateStats() {
+      let infected = 0;
+      let controlled = 0;
+
+      cells.forEach(cell => {
+        if (cell.classList.contains("infected")) infected++;
+        if (cell.classList.contains("controlled")) controlled++;
+      });
+
+      let percent = cells.length ? Math.round((infected / cells.length) * 100) : 0;
+      document.getElementById("stats").innerText = percent + "%";
+      document.getElementById("controlCount").innerText = controlled;
+    }
+
+    function spreadInfection() {
+      time++;
+      document.getElementById("monthDisplay").innerText = time;
+
+      let newInfected = [];
+
+      cells.forEach((cell, index) => {
+        if (cell.classList.contains("infected")) {
+          let neighbors = [index - 1, index + 1, index - size, index + size];
+
+          neighbors.forEach(i => {
+            if (
+              cells[i] &&
+              !cells[i].classList.contains("infected") &&
+              !cells[i].classList.contains("controlled")
+            ) {
+              if (Math.random() < spreadChance) {
+                newInfected.push(cells[i]);
+              }
+            }
+          });
+        }
+      });
+
+      newInfected.forEach(cell => {
+        cell.classList.add("infected");
+        cell.classList.remove("controlled");
+      });
+
+      updateStats();
+
+      let infected = cells.filter(c => c.classList.contains("infected")).length;
+      let percent = Math.round((infected / cells.length) * 100);
+      infectionHistory.push(percent);
+
+      let canSpread = cells.some((cell, index) => {
+        if (cell.classList.contains("infected")) {
+          let neighbors = [index - 1, index + 1, index - size, index + size];
+
+          return neighbors.some(i =>
+            cells[i] &&
+            !cells[i].classList.contains("infected") &&
+            !cells[i].classList.contains("controlled")
+          );
+        }
+        return false;
+      });
+
+      if (!canSpread && !gameEnded) {
+        gameEnded = true;
+        showEndMessage();
+      }
+    }
+
+    function showEndMessage() {
+  canClick = false;
+  clearInterval(interval);
+  interval = null;
+
+  document.getElementById("runStatus").innerText = "Complete";
+  document.getElementById("stateLabel").innerText = "Complete";
+  document.getElementById("endMessage").innerText =
+    "Simulation complete. Redirecting to result page...";
+
+  let infectedCells = cells.filter(c => c.classList.contains("infected")).length;
+  let controlledCells = cells.filter(c => c.classList.contains("controlled")).length;
+  let totalCells = cells.length;
+  let totalMonths = time;
+
+  setTimeout(() => {
+    window.location.href =
+      `result.html?totalCells=${totalCells}&infectedCells=${infectedCells}&controlledCells=${controlledCells}&totalMonths=${totalMonths}`;
+  }, 1500);
+}
+    function resetSimulation() {
+      clearInterval(interval);
+      interval = null;
+
+      time = 0;
+      gameEnded = false;
+      canClick = true;
+      infectionHistory = [];
+
+      document.getElementById("monthDisplay").innerText = "0";
+      document.getElementById("stats").innerText = "0%";
+      document.getElementById("controlCount").innerText = "0";
+      document.getElementById("runStatus").innerText = "Ready";
+      document.getElementById("stateLabel").innerText = "Setup";
+      document.getElementById("endMessage").innerText =
+        "Grid reset complete. New infected pattern generated.";
+
+      createGrid();
+    }
+
+    function setSpeed(type) {
+      if (type === "fast") {
+        spreadSpeed = 1200;
+        spreadChance = 0.20;
+      } else if (type === "normal") {
+        spreadSpeed = 2000;
+        spreadChance = 0.20;
+      } else {
+        spreadSpeed = 3200;
+        spreadChance = 0.20;
+      }
+
+      if (interval) {
+        clearInterval(interval);
+        interval = setInterval(spreadInfection, spreadSpeed);
+      }
+
+      document.getElementById("endMessage").innerText =
+        "Simulation speed updated to " + type + ".";
+    }
+
+    function goBack() {
+      clearInterval(interval);
+      interval = null;
+      document.getElementById("gameScreen").style.display = "none";
+      document.getElementById("welcomeScreen").style.display = "flex";
+    }
+   
+  </script>
+</body>
+</html>
