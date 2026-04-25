@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ecosphere | Invasive Species Spread Simulator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0c1a2d;
+      --panel:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12);
+      --text:#eaf2ff;
+      --muted:#a9b8d1;
+      --green:#44d37e;
+      --red:#ff5b6e;
+      --blue:#4da3ff;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      overflow-x:hidden;
+    }
+    .container{width:min(1400px,94%);margin:0 auto;padding:22px 0 28px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .mark{
+      width:46px;height:46px;border-radius:16px;
+      background:linear-gradient(135deg,var(--green),var(--blue));
+      display:grid;place-items:center;color:#04111f;font-weight:900;
+      box-shadow:0 12px 30px rgba(77,163,255,.22);
+    }
+    .brand h1{font-size:1.2rem;line-height:1}
+    .brand small{color:var(--muted)}
+    .badge{
+      padding:10px 16px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,.03);color:var(--muted);font-size:.92rem
+    }
+    .layout{
+      display:grid;
+      grid-template-columns: 280px minmax(0,1fr) 340px;
+      gap:18px;
+      align-items:start;
+    }
+    .side,.main,.chartbox{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+    }
+    .side{padding:18px;position:sticky;top:18px}
+    .side h2,.chartbox h2{font-size:1.1rem;margin-bottom:12px}
+    .info-card{
+      padding:14px 14px 12px;border-radius:18px;margin-top:12px;border:1px solid rgba(255,255,255,.08);
+      background:rgba(6,16,29,.6)
+    }
+    .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px;vertical-align:middle}
+    .dot.red{background:var(--red)} .dot.green{background:var(--green)} .dot.blue{background:var(--blue)}
+    .muted{color:var(--muted);line-height:1.65;font-size:.95rem}
+    .main{padding:18px;overflow:visible;position:relative;z-index:1}
+    .controls{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px;
+      position:relative;z-index:50;overflow:visible;
+    }
+    .ctrl-group{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;z-index:60;overflow:visible;
+    }
+    .speed-group{
+      background:rgba(255,255,255,.04);
+      padding:8px 10px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    button{
+      border:none;outline:none;border-radius:14px;
+      padding:12px 16px;font-weight:700;color:var(--text);
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      cursor:pointer;transition:.2s ease
+    }
+    button:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
+    .primary{background:linear-gradient(135deg,var(--green),#2fb9ff);color:#04111f}
+    .back{background:linear-gradient(135deg,#7aa7ff,#9b7dff);color:#08111f}
+    .danger{background:linear-gradient(135deg,#ff7786,#ff9b5e);color:#1b0a0d}
+    .speed-tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .speed-tab{
+      padding:10px 14px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,.06);color:var(--text);font-weight:700;cursor:pointer;transition:.2s ease;
+    }
+    .speed-tab.active{
+      background:linear-gradient(135deg,var(--green),#2fb9ff);
+      color:#04111f;border-color:transparent;
+    }
+    .speed-tab:hover{transform:translateY(-1px)}
+    .grid-panel{
+      display:flex;justify-content:center;align-items:center;padding:14px;border-radius:20px;
+      background:rgba(4,12,22,.55);border:1px solid rgba(255,255,255,.08)
+    }
+    #grid{
+      display:grid;
+      grid-template-columns:repeat(20, 22px);
+      gap:4px;
+      user-select:none;
+    }
+    .cell{
+      width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.08);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);
+      cursor:pointer;
+    }
+    .green{background:rgba(68,211,126,.18)}
+    .red{background:rgba(255,91,110,.95); box-shadow:0 0 10px rgba(255,91,110,.28)}
+    .blue{background:rgba(77,163,255,.95); box-shadow:0 0 10px rgba(77,163,255,.28)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+    .stat{
+      padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)
+    }
+    .stat span{display:block;color:var(--muted);font-size:.85rem;margin-bottom:4px}
+    .stat strong{font-size:1.2rem}
+    .chartbox{padding:18px;position:sticky;top:18px}
+    canvas{width:100% !important;height:320px !important;}
+    @media (max-width:1200px){
+      .layout{grid-template-columns:1fr}
+      .side,.chartbox{position:static}
+      #grid{grid-template-columns:repeat(20, 18px)}
+      .cell{width:18px;height:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">E</div>
+        <div>
+          <h1>Ecosphere</h1>
+          <small>Invasive Species Spread Simulator</small>
+        </div>
+      </div>
+      <div class="badge" id="statusBadge">Ready • choose speed, then start</div>
+    </div>
+
+    <div class="layout">
+      <aside class="side">
+        <h2>Color Guide</h2>
+
+        <div class="info-card">
+          <div><span class="dot green"></span><strong>Green</strong></div>
+          <p class="muted">Healthy habitat. Default state before infection spreads.</p>
+        </div>
+
+        <div class="info-card">
+          <div><span class="dot red"></span><strong>Red</strong></div>
+          <p class="muted">Infected cell. Red spreads to nearby green cells during the simulation.</p>
+        </div>
+
+        <div class="info-card">
+          <div><span class="dot blue"></span><strong>Blue</strong></div>
+          <p class="muted">Controlled cell. Blue can be placed on red or green cells and never turns green again.</p>
+        </div>
+
+        <div class="info-card">
+          <strong>How to use</strong>
+          <p class="muted" style="margin-top:8px">
+            1. Select a speed tab first.
+            2. Press Start Simulation.
+            3. Click any cell to paint it blue.
+            4. The spread stops automatically when no more spread is possible.
+          </p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="controls">
+          <div class="ctrl-group">
+            <button class="primary" id="startBtn">Start Simulation</button>
+            <button class="back" id="backBtn">Back to Main Page</button>
+            <button class="danger" id="resetBtn">Reset</button>
+          </div>
+
+          <div class="ctrl-group speed-group">
+            <span class="muted">Speed</span>
+            <div class="speed-tabs">
+              <button type="button" class="speed-tab active" data-speed="4000">Slow</button>
+              <button type="button" class="speed-tab" data-speed="3000">Normal</button>
+              <button type="button" class="speed-tab" data-speed="2000">Fast</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-panel">
+          <div id="grid"></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span>Green</span><strong id="greenCount">0</strong></div>
+          <div class="stat"><span>Red</span><strong id="redCount">0</strong></div>
+          <div class="stat"><span>Blue</span><strong id="blueCount">0</strong></div>
+        </div>
+      </main>
+
+      <aside class="chartbox">
+        <h2>Live Graph</h2>
+        <p class="muted" style="margin-bottom:12px">Tracks green, red, and blue cell counts over time.</p>
+        <canvas id="liveChart"></canvas>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const rows = 20, cols = 20;
+    const gridEl = document.getElementById('grid');
+    const greenCountEl = document.getElementById('greenCount');
+    const redCountEl = document.getElementById('redCount');
+    const blueCountEl = document.getElementById('blueCount');
+    const startBtn = document.getElementById('startBtn');
+    const backBtn = document.getElementById('backBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const statusBadge = document.getElementById('statusBadge');
+
+    let grid = [];
+    let cells = [];
+    let intervalId = null;
+    let running = false;
+    let tick = 0;
+    let selectedSpeed = 2500;
+
+    const speedTabs = document.querySelectorAll('.speed-tab');
+    speedTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        speedTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedSpeed = Number(btn.dataset.speed);
+        if (running) {
+          stopSimulation(false);
+          startSimulation();
+        }
+      });
+    });
+
+    function createInitialGrid() {
+      grid = Array.from({length: rows}, () => Array.from({length: cols}, () => 0));
+      let placed = 0;
+      const initialRed = 14;
+      while (placed < initialRed) {
+        const r = Math.floor(Math.random() * rows);
+        const c = Math.floor(Math.random() * cols);
+        if (grid[r][c] === 0) {
+          grid[r][c] = 1;
+          placed++;
+        }
+      }
+    }
+
+    function buildGrid() {
+      gridEl.innerHTML = '';
+      cells = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const div = document.createElement('div');
+          div.className = 'cell green';
+          div.addEventListener('click', () => {
+            grid[r][c] = 2;
+            render();
+          });
+          gridEl.appendChild(div);
+          cells.push(div);
+        }
+      }
+    }
+
+    function idx(r, c) { return r * cols + c; }
+
+    function neighbors(r, c) {
+      return [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([rr,cc]) => rr >= 0 && rr < rows && cc >= 0 && cc < cols);
+    }
+
+    function countState(state) {
+      let count = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (grid[r][c] === state) count++;
+        }
+      }
+      return count;
+    }
+
+    function updateChart(green, red, blue) {
+      if (chart.data.labels[chart.data.labels.length - 1] !== tick) {
+        chart.data.labels.push(tick);
+        chart.data.datasets[0].data.push(green);
+        chart.data.datasets[1].data.push(red);
+        chart.data.datasets[2].data.push(blue);
+        if (chart.data.labels.length > 60) {
+          chart.data.labels.shift();
+          chart.data.datasets.forEach(ds => ds.data.shift());
+        }
+      } else {
+        const i = chart.data.labels.length - 1;
+        chart.data.datasets[0].data[i] = green;
+        chart.data.datasets[1].data[i] = red;
+        chart.data.datasets[2].data[i] = blue;
+      }
+      chart.update();
+    }
+
+    function render() {
+      let green = 0, red = 0, blue = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const s = grid[r][c];
+          const cell = cells[idx(r,c)];
+          cell.className = 'cell ' + (s === 0 ? 'green' : s === 1 ? 'red' : 'blue');
+          if (s === 0) green++;
+          if (s === 1) red++;
+          if (s === 2) blue++;
+        }
+      }
+      greenCountEl.textContent = green;
+      redCountEl.textContent = red;
+      blueCountEl.textContent = blue;
+      updateChart(green, red, blue);
+      if (running) statusBadge.textContent = red === 0 ? 'Simulation complete' : 'Running';
+    }
+function stopSimulation(finished = false) {
+  running = false;
+  clearInterval(intervalId);
+  intervalId = null;
+
+  if (finished) {
+    statusBadge.textContent = 'Simulation complete • Redirecting to result page...';
+    const green = countState(0);
+    const red = countState(1);
+    const blue = countState(2);
+
+    setTimeout(() => {
+      window.location.href = `result.html?green=${green}&red=${red}&blue=${blue}&initialRed=14`;
+    }, 2000);
+  } else {
+    statusBadge.textContent = 'Ready • choose speed, then start';
+  }
+}
+    
+    function spreadStep() {
+      const next = grid.map(row => [...row]);
+      let changed = false;
+      let activeRed = 0;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (grid[r][c] !== 1) continue;
+          activeRed++;
+          for (const [nr, nc] of neighbors(r, c)) {
+            if (grid[nr][nc] === 0) {
+              const chance = 0.16;
+              if (Math.random() < chance) {
+                next[nr][nc] = 1;
+                changed = true;
+              }
+            }
+          }
+        }
+      }
+
+      grid = next;
+      tick++;
+      render();
+
+      if (activeRed === 0 || !changed) {
+        stopSimulation(true);
+      }
+    }
+
+    function startSimulation() {
+      if (running) return;
+      running = true;
+      statusBadge.textContent = 'Running';
+      clearInterval(intervalId);
+      intervalId = setInterval(spreadStep, selectedSpeed);
+    }
+
+    function resetSimulation() {
+      stopSimulation(false);
+      tick = 0;
+      createInitialGrid();
+      render();
+      chart.data.labels = [0];
+      chart.data.datasets[0].data = [countState(0)];
+      chart.data.datasets[1].data = [countState(1)];
+      chart.data.datasets[2].data = [countState(2)];
+      chart.update();
+    }
+
+    const ctx = document.getElementById('liveChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [0],
+        datasets: [
+          { label: 'Green', data: [0], borderColor: '#44d37e', backgroundColor: 'transparent', tension: 0.35, borderWidth: 2 },
+          { label: 'Red', data: [0], borderColor: '#ff5b6e', backgroundColor: 'transparent', tension: 0.35, borderWidth: 2 },
+          { label: 'Blue', data: [0], borderColor: '#4da3ff', backgroundColor: 'transparent', tension: 0.35, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        scales: {
+          x: { ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } },
+          y: { beginAtZero: true, ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } }
+        },
+        plugins: { legend: { labels: { color: '#eaf2ff' } } }
+      }
+    });
+
+    startBtn.addEventListener('click', startSimulation);
+    backBtn.addEventListener('click', () => window.location.href = 'index.html');
+    resetBtn.addEventListener('click', resetSimulation);
+
+    buildGrid();
+    createInitialGrid();
+    render();
+    chart.data.datasets[0].data = [countState(0)];
+    chart.data.datasets[1].data = [countState(1)];
+    chart.data.datasets[2].data = [countState(2)];
+    chart.update();
+  </script>
+</body>
+</html>
