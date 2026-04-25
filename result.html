@@ -3,433 +3,409 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simulation Result</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+  <title>Ecosphere | Simulation Result</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root{
+      --bg:#07111f;
+      --bg2:#0c1a2d;
+      --panel:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12);
+      --text:#eaf2ff;
+      --muted:#a9b8d1;
+      --green:#44d37e;
+      --red:#ff5b6e;
+      --blue:#4da3ff;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
     }
-
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Arial,sans-serif;
+      color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(76, 175, 80, 0.18), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(33, 150, 243, 0.16), transparent 30%),
-        linear-gradient(135deg, #0b1d26, #12343b, #1c4b52);
-      color: #ffffff;
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+        radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      min-height:100vh;
     }
-
-    .page {
-      width: 100%;
-      max-width: 980px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(14px);
-      border-radius: 24px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
-      overflow: hidden;
+    .container{width:min(1200px,94%);margin:0 auto;padding:24px 0 32px}
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;
     }
-
-    .top-bar {
-      padding: 24px 28px 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
+    .brand{display:flex;align-items:center;gap:12px}
+    .mark{
+      width:46px;height:46px;border-radius:16px;
+      background:linear-gradient(135deg,var(--green),var(--blue));
+      display:grid;place-items:center;color:#04111f;font-weight:900;
+      box-shadow:0 12px 30px rgba(77,163,255,.22);
     }
-
-    .title-box h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #ecfffb;
-      margin-bottom: 6px;
+    .badge{
+      padding:10px 16px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,.03);color:var(--muted);font-size:.92rem
     }
-
-    .title-box p {
-      color: #c7e7e2;
-      font-size: 0.96rem;
+    .result-shell{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      padding:22px;
     }
-
-    .status-badge {
-      background: rgba(76, 175, 80, 0.18);
-      color: #b8ffbf;
-      border: 1px solid rgba(76, 175, 80, 0.35);
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      font-weight: 600;
+    .header{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px;
     }
-
-    .content {
-      padding: 24px 28px 28px;
+    .header h1{font-size:2rem;letter-spacing:-0.03em;margin-bottom:8px}
+    .header p{color:var(--muted);line-height:1.7;max-width:720px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:none;outline:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;
+      transition:.2s ease;background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)
     }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 22px;
+    button:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
+    .primary{background:linear-gradient(135deg,var(--green),#2fb9ff);color:#04111f}
+    .ghost{background:rgba(255,255,255,.05)}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-bottom:18px;
     }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.09);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    .card{
+      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)
     }
-
-    .stat-label {
-      font-size: 0.88rem;
-      color: #b8d8d4;
-      margin-bottom: 10px;
+    .card span{display:block;color:var(--muted);font-size:.9rem;margin-bottom:8px}
+    .card strong{font-size:1.8rem}
+    .summary{
+      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      margin-bottom:18px;line-height:1.8;color:#edf4ff
     }
-
-    .stat-value {
-      font-size: 1.65rem;
-      font-weight: 700;
-      color: #ffffff;
+    .section-title{font-size:1.15rem;margin-bottom:12px}
+    .chart-card{
+      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      margin-bottom:18px;
     }
-
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.9fr;
-      gap: 18px;
-      align-items: start;
+    .chart-wrap{
+      width:100%;
+      height:360px;
+      position:relative;
     }
-
-    .panel {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    canvas{width:100% !important;height:100% !important;display:block;}
+    .mini{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
     }
-
-    .panel h2 {
-      font-size: 1.08rem;
-      margin-bottom: 14px;
-      color: #ecfffb;
+    .mini-card{
+      padding:16px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)
     }
-
-    .analysis-text {
-      color: #e7f7f4;
-      line-height: 1.7;
-      font-size: 0.97rem;
-      margin-bottom: 16px;
+    .mini-card h3{margin-bottom:8px;font-size:1rem}
+    .mini-card p{color:var(--muted);line-height:1.65;font-size:.95rem}
+    .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+    .green{background:var(--green)} .red{background:var(--red)} .blue{background:var(--blue)}
+    #printArea{
+      display:none;
+      background:#ffffff;
+      color:#111111;
+      padding:24px;
+      width:1100px;
+      font-family:Arial,sans-serif;
     }
-
-    .highlight-list {
-      display: grid;
-      gap: 10px;
+    #printArea *{color:#111111}
+    #printArea h1,#printArea h2,#printArea h3,#printArea p,#printArea span,#printArea strong{color:#111111}
+    #printArea .print-title{font-size:28px;font-weight:800;margin-bottom:10px}
+    #printArea .print-sub{font-size:14px;color:#444;margin-bottom:18px;line-height:1.5}
+    .print-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:16px;
     }
-
-    .highlight-item {
-      background: rgba(255,255,255,0.06);
-      border-left: 4px solid #4cd137;
-      border-radius: 12px;
-      padding: 12px 14px;
-      color: #ecfffb;
-      font-size: 0.93rem;
+    .print-card{
+      border:1px solid #d8d8d8;
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
     }
-
-    .chart-card {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 14px;
+    .print-card span{display:block;font-size:12px;color:#555;margin-bottom:6px}
+    .print-card strong{font-size:24px}
+    .print-summary{
+      border:1px solid #d8d8d8;
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:16px;
+      line-height:1.6;
+      font-size:14px;
     }
-
-    .chart-title {
-      font-size: 0.95rem;
-      color: #dff5f0;
-      margin-bottom: 10px;
-      text-align: center;
-      font-weight: 600;
+    .print-chart{
+      border:1px solid #d8d8d8;
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:16px;
     }
-
-    .chart-wrap {
-      position: relative;
-      width: 100%;
-      height: 220px;
+    .print-mini{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
     }
-
-    .legend-note {
-      margin-top: 10px;
-      font-size: 0.82rem;
-      color: #b9d5d0;
-      text-align: center;
-    }
-
-    .button-row {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 22px;
-    }
-
-    .btn {
-      border: none;
-      outline: none;
-      text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.25s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 140px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #33c46c, #249f56);
-      color: white;
-      box-shadow: 0 10px 20px rgba(51, 196, 108, 0.25);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.10);
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,0.14);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.16);
-    }
-
-    @media (max-width: 900px) {
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 560px) {
-      body {
-        padding: 14px;
-      }
-
-      .top-bar,
-      .content {
-        padding: 18px;
-      }
-
-      .title-box h1 {
-        font-size: 1.55rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 1.4rem;
-      }
-
-      .chart-wrap {
-        height: 200px;
-      }
-
-      .btn {
-        width: 100%;
-      }
+    .print-mini .print-card p{font-size:13px;line-height:1.5;color:#333}
+    @media (max-width:900px){
+      .grid,.mini{grid-template-columns:1fr}
+      .card strong{font-size:1.5rem}
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="top-bar">
-      <div class="title-box">
-        <h1>Simulation Result</h1>
-        <p>Before vs after intervention comparison for invasive species spread</p>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">E</div>
+        <div>
+          <h1>Ecosphere</h1>
+          <small style="color:var(--muted)">Simulation Result</small>
+        </div>
       </div>
-      <div class="status-badge">Early Control Effective</div>
+      <div class="badge" id="statusBadge">Result ready</div>
     </div>
 
-    <div class="content">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Final Spread Before</div>
-          <div class="stat-value" id="beforePercent">92%</div>
+    <div class="result-shell" id="screenArea">
+      <div class="header">
+        <div>
+          <h1>Simulation Complete</h1>
+          <p id="resultLine">The final outcome is being calculated from your simulation data.</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Final Spread After</div>
-          <div class="stat-value" id="afterPercent">54%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Reduction Achieved</div>
-          <div class="stat-value" id="reductionPercent">38%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Simulation Duration</div>
-          <div class="stat-value" id="durationText">10 Months</div>
+        <div class="actions">
+          <button class="ghost" onclick="window.location.href='game.html'">Back to Simulation</button>
+          <button class="primary" id="downloadPdf">Download PDF</button>
         </div>
       </div>
 
-      <div class="main-grid">
-        <div class="panel">
-          <h2>Result Summary</h2>
-          <p class="analysis-text">
-            The comparison shows that the invasive species spread much faster when no intervention was applied.
-            After introducing control zones, the infestation curve increased more slowly, which reduced the final
-            affected habitat area and improved containment over time.
-          </p>
-
-          <div class="highlight-list">
-            <div class="highlight-item">
-              Without intervention, infestation rose continuously and reached a high final percentage.
-            </div>
-            <div class="highlight-item">
-              With intervention, the spread curve stayed lower throughout the simulation timeline.
-            </div>
-            <div class="highlight-item">
-              This indicates that early action can significantly reduce ecological damage.
-            </div>
-          </div>
+      <div class="grid">
+        <div class="card">
+          <span><span class="dot green"></span>Final Green</span>
+          <strong id="greenVal">0</strong>
         </div>
-
-        <div class="panel">
-          <h2>Comparison Graph</h2>
-
-          <div class="chart-card">
-            <div class="chart-title">Spread Over Time</div>
-            <div class="chart-wrap">
-              <canvas id="comparisonGraph"></canvas>
-            </div>
-            <div class="legend-note">Red = Before intervention, Green = After intervention</div>
-          </div>
+        <div class="card">
+          <span><span class="dot red"></span>Final Red</span>
+          <strong id="redVal">0</strong>
+        </div>
+        <div class="card">
+          <span><span class="dot blue"></span>Final Blue</span>
+          <strong id="blueVal">0</strong>
+        </div>
+        <div class="card">
+          <span>Total Cells</span>
+          <strong id="totalVal">400</strong>
         </div>
       </div>
 
-      <div class="button-row">
-        <a href="index.html" class="btn btn-primary">Run Again</a>
-        <button class="btn btn-secondary" onclick="window.print()">Download Result</button>
+      <div class="summary" id="summaryBox"></div>
+
+      <div class="chart-card">
+        <div class="section-title">Before vs After Comparison</div>
+        <div class="chart-wrap">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
+
+      <div class="mini">
+        <div class="mini-card">
+          <h3>Infestation Rate</h3>
+          <p id="infestationText"></p>
+        </div>
+        <div class="mini-card">
+          <h3>Control Impact</h3>
+          <p id="controlText"></p>
+        </div>
+        <div class="mini-card">
+          <h3>Project Insight</h3>
+          <p id="insightText"></p>
+        </div>
       </div>
     </div>
+
+    <div id="printArea"></div>
   </div>
 
   <script>
-    const beforeData = [5, 12, 20, 31, 45, 58, 71, 82, 88, 92];
-    const afterData = [5, 9, 14, 20, 27, 34, 40, 46, 50, 54];
-    const timeLabels = ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10"];
+    const total = 400;
+    const urlParams = new URLSearchParams(window.location.search);
+    const green = Number(urlParams.get('green') || 0);
+    const red = Number(urlParams.get('red') || 0);
+    const blue = Number(urlParams.get('blue') || 0);
+    const initialRed = Number(urlParams.get('initialRed') || 14);
 
-    const finalBefore = beforeData[beforeData.length - 1];
-    const finalAfter = afterData[afterData.length - 1];
-    const reduction = finalBefore - finalAfter;
+    const beforeGreen = total - initialRed;
+    const beforeRed = initialRed;
+    const beforeBlue = 0;
 
-    document.getElementById("beforePercent").textContent = finalBefore + "%";
-    document.getElementById("afterPercent").textContent = finalAfter + "%";
-    document.getElementById("reductionPercent").textContent = reduction + "%";
-    document.getElementById("durationText").textContent = timeLabels.length + " Months";
+    document.getElementById('greenVal').textContent = green;
+    document.getElementById('redVal').textContent = red;
+    document.getElementById('blueVal').textContent = blue;
+    document.getElementById('totalVal').textContent = total;
 
-    const ctx = document.getElementById("comparisonGraph").getContext("2d");
+    const redPct = ((red / total) * 100).toFixed(1);
+    const controlledLost = Math.max(0, beforeRed - red);
 
-    new Chart(ctx, {
-      type: "line",
+   
+
+const infestationRate = (red / total) * 100;
+
+let summary = '';
+
+if (red === 0) {
+  summary = 'Excellent outcome. The spread was fully contained and no active infestation remained.';
+  document.getElementById('statusBadge').textContent = 'Strong containment';
+} else if (infestationRate< 50) {
+  summary = 'Very low spread. The control measures worked extremely well and kept the infestation under control.';
+  document.getElementById('statusBadge').textContent = 'Very low spread';
+} else if (infestationRate < 120) {
+  summary = 'Moderate spread. The infection expanded, but control measures still reduced the overall impact.';
+  document.getElementById('statusBadge').textContent = 'Moderate spread';
+} else if (infestationRate< 250) {
+  summary = 'High spread detected. Intervention had some effect, but the invasion still covered a significant area.';
+  document.getElementById('statusBadge').textContent = 'High spread';
+} else {
+  summary = 'Severe spread detected. The invasive species expanded rapidly and overwhelmed the control measures.';
+  document.getElementById('statusBadge').textContent = 'Severe spread';
+}
+    document.getElementById('summaryBox').textContent = summary;
+    document.getElementById('resultLine').textContent = `The habitat ended with ${green} healthy cells, ${red} infected cells, and ${blue} controlled cells.`;
+    document.getElementById('infestationText').textContent = `Final infestation rate is ${redPct}%, compared with ${((beforeRed / total) * 100).toFixed(1)}% at the start.`;
+    document.getElementById('controlText').textContent = `Blue control cells protected ${blue} locations and reduced the active spread.`;
+
+
+let insightText = '';
+
+if (red === 0) {
+  insightText = `Complete containment achieved. The habitat ended with ${green} healthy cells and ${blue} controlled cells.`;
+} else if (infestationRate < 50) {
+  insightText = `Low infestation remained. Only ${red} cells stayed infected out of ${total} total cells.`;
+} else if (infestationRate < 120) {
+  insightText = `Moderate infestation remained. The simulation ended with ${red} infected cells and ${blue} controlled cells.`;
+} else if (infestationRate < 250) {
+  insightText = `A large spread remained. ${red} cells were still infected, so stronger intervention would be needed.`;
+} else {
+  insightText = `Severe spread remained. ${red} infected cells show the invasive species was not controlled effectively.`;
+}
+
+document.getElementById('insightText').textContent = insightText;
+
+document.getElementById('insightText').textContent = insightText;
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
       data: {
-        labels: timeLabels,
+        labels: ['Green', 'Red', 'Blue'],
         datasets: [
           {
-            label: "Before",
-            data: beforeData,
-            borderColor: "#ff6b6b",
-            backgroundColor: "rgba(255, 107, 107, 0.12)",
-            borderWidth: 2.5,
-            tension: 0.35,
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            pointBackgroundColor: "#ff6b6b",
-            fill: false
+            label: 'Before',
+            data: [beforeGreen, beforeRed, beforeBlue],
+            backgroundColor: ['rgba(68,211,126,.35)', 'rgba(255,91,110,.35)', 'rgba(77,163,255,.35)'],
+            borderColor: ['#44d37e', '#ff5b6e', '#4da3ff'],
+            borderWidth: 2,
+            borderRadius: 10
           },
           {
-            label: "After",
-            data: afterData,
-            borderColor: "#4cd137",
-            backgroundColor: "rgba(76, 209, 55, 0.12)",
-            borderWidth: 2.5,
-            tension: 0.35,
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            pointBackgroundColor: "#4cd137",
-            fill: false
+            label: 'After',
+            data: [green, red, blue],
+            backgroundColor: ['rgba(68,211,126,.8)', 'rgba(255,91,110,.8)', 'rgba(77,163,255,.8)'],
+            borderColor: ['#44d37e', '#ff5b6e', '#4da3ff'],
+            borderWidth: 2,
+            borderRadius: 10
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: "index",
-          intersect: false
-        },
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            backgroundColor: "rgba(15, 32, 39, 0.95)",
-            titleColor: "#ffffff",
-            bodyColor: "#ffffff",
-            borderColor: "rgba(255,255,255,0.10)",
-            borderWidth: 1,
-            callbacks: {
-              label: function(context) {
-                return context.dataset.label + ": " + context.raw + "%";
-              }
-            }
-          }
-        },
+        plugins: { legend: { labels: { color: '#eaf2ff' } } },
         scales: {
-          x: {
-            ticks: {
-              color: "#d6efeb",
-              font: {
-                size: 10
-              }
-            },
-            grid: {
-              color: "rgba(255,255,255,0.07)"
-            }
-          },
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              color: "#d6efeb",
-              stepSize: 20,
-              font: {
-                size: 10
-              },
-              callback: function(value) {
-                return value + "%";
-              }
-            },
-            grid: {
-              color: "rgba(255,255,255,0.07)"
-            }
-          }
+          x: { ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } },
+          y: { beginAtZero: true, ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } }
         }
       }
+    });
+
+    function makePrintArea() {
+      const printArea = document.getElementById('printArea');
+      const chartImg = chart.toBase64Image();
+
+      printArea.innerHTML = `
+        <div class="print-title">Ecosphere - Simulation Result</div>
+        <div class="print-sub">${document.getElementById('resultLine').textContent}</div>
+
+        <div class="print-grid">
+          <div class="print-card"><span>Final Green</span><strong>${green}</strong></div>
+          <div class="print-card"><span>Final Red</span><strong>${red}</strong></div>
+          <div class="print-card"><span>Final Blue</span><strong>${blue}</strong></div>
+          <div class="print-card"><span>Total Cells</span><strong>${total}</strong></div>
+        </div>
+
+        <div class="print-summary">${summary}</div>
+
+        <div class="print-chart">
+          <img src="${chartImg}" style="width:100%;display:block;" />
+        </div>
+
+        <div class="print-mini">
+          <div class="print-card">
+            <span>Infestation Rate</span>
+            <p>${document.getElementById('infestationText').textContent}</p>
+          </div>
+          <div class="print-card">
+            <span>Control Impact</span>
+            <p>${document.getElementById('controlText').textContent}</p>
+          </div>
+          <div class="print-card">
+            <span>Project Insight</span>
+            <p>${document.getElementById('insightText').textContent}</p>
+          </div>
+        </div>
+      `;
+
+      return printArea;
+    }
+
+    document.getElementById('downloadPdf').addEventListener('click', async () => {
+      const printArea = makePrintArea();
+      printArea.style.display = 'block';
+
+      const canvas = await html2canvas(printArea, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0
+      });
+
+      printArea.style.display = 'none';
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let position = 0;
+      let remaining = imgHeight;
+
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      remaining -= pageHeight;
+
+      while (remaining > 0) {
+        position = pageHeight - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        remaining -= pageHeight;
+      }
+
+      pdf.save('Ecosphere_Result.pdf');
     });
   </script>
 </body>
