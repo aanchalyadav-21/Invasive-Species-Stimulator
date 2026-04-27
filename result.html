@@ -258,13 +258,13 @@ let summary = '';
 if (red === 0) {
   summary = 'Excellent outcome. The spread was fully contained and no active infestation remained.';
   document.getElementById('statusBadge').textContent = 'Strong containment';
-} else if (infestationRate< 50) {
+} else if (infestationRate< 30) {
   summary = 'Very low spread. The control measures worked extremely well and kept the infestation under control.';
   document.getElementById('statusBadge').textContent = 'Very low spread';
-} else if (infestationRate < 120) {
+} else if (infestationRate < 70) {
   summary = 'Moderate spread. The infection expanded, but control measures still reduced the overall impact.';
   document.getElementById('statusBadge').textContent = 'Moderate spread';
-} else if (infestationRate< 250) {
+} else if (infestationRate< 200) {
   summary = 'High spread detected. Intervention had some effect, but the invasion still covered a significant area.';
   document.getElementById('statusBadge').textContent = 'High spread';
 } else {
@@ -281,11 +281,11 @@ let insightText = '';
 
 if (red === 0) {
   insightText = `Complete containment achieved. The habitat ended with ${green} healthy cells and ${blue} controlled cells.`;
-} else if (infestationRate < 50) {
+} else if (infestationRate < 30) {
   insightText = `Low infestation remained. Only ${red} cells stayed infected out of ${total} total cells.`;
-} else if (infestationRate < 120) {
+} else if (infestationRate < 70) {
   insightText = `Moderate infestation remained. The simulation ended with ${red} infected cells and ${blue} controlled cells.`;
-} else if (infestationRate < 250) {
+} else if (infestationRate < 200) {
   insightText = `A large spread remained. ${red} cells were still infected, so stronger intervention would be needed.`;
 } else {
   insightText = `Severe spread remained. ${red} infected cells show the invasive species was not controlled effectively.`;
