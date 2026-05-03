@@ -1,411 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ecosphera | Simulation Result</title>
+  <meta charset="UTF-8">
+  <title>Ecosphera | Environmental Assessment</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root{
-      --bg:#07111f;
-      --bg2:#0c1a2d;
-      --panel:rgba(255,255,255,.06);
-      --border:rgba(255,255,255,.12);
-      --text:#eaf2ff;
-      --muted:#a9b8d1;
-      --green:#44d37e;
-      --red:#ff5b6e;
-      --blue:#4da3ff;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --radius:22px;
+    :root { 
+      --bg: #07111f; --bg2: #0c1a2d; --text: #eaf2ff; --muted: #a9b8d1;
+      --green: #22c55e; --red: #f43f5e; --blue: #3b82f6;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
-      min-height:100vh;
+    body { 
+      font-family: 'Inter', Arial, sans-serif; 
+      background: radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%), radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%), linear-gradient(180deg,var(--bg),var(--bg2)); 
+      color: var(--text); padding: 40px 20px; min-height: 100vh; 
     }
-    .container{width:min(1200px,94%);margin:0 auto;padding:24px 0 32px}
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;
+    .page { 
+      max-width: 800px; margin: 0 auto; background: linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04)); 
+      border: 1px solid rgba(255,255,255,.12); border-radius: 28px; padding: 40px; 
+      box-shadow: 0 20px 60px rgba(0,0,0,.35); backdrop-filter: blur(18px); 
     }
-    .brand{display:flex;align-items:center;gap:12px}
-    .mark{
-      width:46px;height:46px;border-radius:16px;
-      background:linear-gradient(135deg,var(--green),var(--blue));
-      display:grid;place-items:center;color:#04111f;font-weight:900;
-      box-shadow:0 12px 30px rgba(77,163,255,.22);
+    .header-logo { 
+      display: flex; align-items: center; gap: 15px; margin-bottom: 25px; 
+      border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: 20px; 
     }
-    .badge{
-      padding:10px 16px;border-radius:999px;border:1px solid var(--border);
-      background:rgba(255,255,255,.03);color:var(--muted);font-size:.92rem
+    .brand-mark { 
+      width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg,#22c55e,#3b82f6); 
+      display: grid; place-items: center; color: #04111f; font-weight: 900; font-size: 24px; 
     }
-    .result-shell{
-      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
-      border:1px solid var(--border);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
-      padding:22px;
+    .section { margin: 20px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .chart-container { height: 300px; margin-top: 20px; background: rgba(0,0,0,0.2); border-radius: 16px; padding: 15px; }
+    .btn { 
+      padding: 12px 24px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); 
+      background: rgba(255,255,255,.06); color: var(--text); font-weight: bold; 
+      cursor: pointer; margin-right: 10px; transition: 0.2s; 
     }
-    .header{
-      display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px;
-    }
-    .header h1{font-size:2rem;letter-spacing:-0.03em;margin-bottom:8px}
-    .header p{color:var(--muted);line-height:1.7;max-width:720px}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    button{
-      border:none;outline:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;
-      transition:.2s ease;background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)
-    }
-    button:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
-    .primary{background:linear-gradient(135deg,var(--green),#2fb9ff);color:#04111f}
-    .ghost{background:rgba(255,255,255,.05)}
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-      margin-bottom:18px;
-    }
-    .card{
-      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)
-    }
-    .card span{display:block;color:var(--muted);font-size:.9rem;margin-bottom:8px}
-    .card strong{font-size:1.8rem}
-    .summary{
-      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      margin-bottom:18px;line-height:1.8;color:#edf4ff
-    }
-    .section-title{font-size:1.15rem;margin-bottom:12px}
-    .chart-card{
-      padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      margin-bottom:18px;
-    }
-    .chart-wrap{
-      width:100%;
-      height:360px;
-      position:relative;
-    }
-    canvas{width:100% !important;height:100% !important;display:block;}
-    .mini{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:14px;
-    }
-    .mini-card{
-      padding:16px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)
-    }
-    .mini-card h3{margin-bottom:8px;font-size:1rem}
-    .mini-card p{color:var(--muted);line-height:1.65;font-size:.95rem}
-    .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
-    .green{background:var(--green)} .red{background:var(--red)} .blue{background:var(--blue)}
-    #printArea{
-      display:none;
-      background:#ffffff;
-      color:#111111;
-      padding:24px;
-      width:1100px;
-      font-family:Arial,sans-serif;
-    }
-    #printArea *{color:#111111}
-    #printArea h1,#printArea h2,#printArea h3,#printArea p,#printArea span,#printArea strong{color:#111111}
-    #printArea .print-title{font-size:28px;font-weight:800;margin-bottom:10px}
-    #printArea .print-sub{font-size:14px;color:#444;margin-bottom:18px;line-height:1.5}
-    .print-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-      margin-bottom:16px;
-    }
-    .print-card{
-      border:1px solid #d8d8d8;
-      border-radius:14px;
-      padding:14px;
-      background:#fff;
-    }
-    .print-card span{display:block;font-size:12px;color:#555;margin-bottom:6px}
-    .print-card strong{font-size:24px}
-    .print-summary{
-      border:1px solid #d8d8d8;
-      border-radius:14px;
-      padding:14px;
-      margin-bottom:16px;
-      line-height:1.6;
-      font-size:14px;
-    }
-    .print-chart{
-      border:1px solid #d8d8d8;
-      border-radius:14px;
-      padding:14px;
-      margin-bottom:16px;
-    }
-    .print-mini{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-    }
-    .print-mini .print-card p{font-size:13px;line-height:1.5;color:#333}
-    @media (max-width:900px){
-      .grid,.mini{grid-template-columns:1fr}
-      .card strong{font-size:1.5rem}
-    }
+    .btn:hover { background: rgba(255,255,255,0.1); }
+    .primary { background: linear-gradient(135deg,var(--green),#2fb9ff); color: #04111f; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="topbar">
-      <div class="brand">
-        <div class="mark">E</div>
-        <div>
-          <h1>Ecosphera</h1>
-          <small style="color:var(--muted)">Simulation Result</small>
-        </div>
-      </div>
-      <div class="badge" id="statusBadge">Result ready</div>
-    </div>
+  <div class="page" id="report">
+    <div class="header-logo">
+      <div class="brand-mark">E</div>
+      <div>
 
-    <div class="result-shell" id="screenArea">
-      <div class="header">
-        <div>
-          <h1>Simulation Complete</h1>
-          <p id="resultLine">The final outcome is being calculated from your simulation data.</p>
-        </div>
-        <div class="actions">
-          <button class="ghost" onclick="window.location.href='game.html'">Back to Simulation</button>
-          <button class="primary" id="downloadPdf">Download PDF</button>
-        </div>
+
+        <h1 style="margin:0; padding:0; border:none;">Ecosphera</h1>
+        <small style="color:var(--muted)">Environmental Impact Assessment</small>
+      </div>
       </div>
 
-      <div class="grid">
-        <div class="card">
-          <span><span class="dot green"></span>Final Green</span>
-          <strong id="greenVal">0</strong>
-        </div>
-        <div class="card">
-          <span><span class="dot red"></span>Final Red</span>
-          <strong id="redVal">0</strong>
-        </div>
-        <div class="card">
-          <span><span class="dot blue"></span>Final Blue</span>
-          <strong id="blueVal">0</strong>
-        </div>
-        <div class="card">
-          <span>Total Cells</span>
-          <strong id="totalVal">400</strong>
-        </div>
+<div class="section">
+  <h3>Abstract</h3>
+  <p id="abstractText" style="color:var(--muted); line-height:1.6;"></p>
+</div>
+
+<div class="section">
+  <h3>Methodology</h3>
+  <p style="color:var(--muted); line-height:1.6;">
+    The simulation models invasive species spread using a grid-based system where each cell represents a habitat unit. 
+    Spread occurs probabilistically to neighboring cells based on environmental conditions. 
+    Intervention strategies include manual placement of control zones and automated (AI-based) containment.
+  </p>
+</div>
+
+
+<div class="section">
+  <h3>Results</h3>
+  <p id="dynamicSummary" style="color:var(--muted); line-height:1.6;"></p>
+</div>
+
+    <div class="section">
+  <h3>Comparative Analysis</h3>
+  <p id="comparisonText" style="color:var(--muted); line-height:1.6;"></p>
+</div>
+    
+    
+    
+
+    <div class="grid">
+      <div>
+        <h3>Cell Data</h3>
+        <ul id="statsList" style="color:var(--muted)"></ul>
       </div>
-
-      <div class="summary" id="summaryBox"></div>
-
-      <div class="chart-card">
-        <div class="section-title">Before vs After Comparison</div>
-        <div class="chart-wrap">
-          <canvas id="comparisonChart"></canvas>
-        </div>
-      </div>
-
-      <div class="mini">
-        <div class="mini-card">
-          <h3>Infestation Rate</h3>
-          <p id="infestationText"></p>
-        </div>
-        <div class="mini-card">
-          <h3>Control Impact</h3>
-          <p id="controlText"></p>
-        </div>
-        <div class="mini-card">
-          <h3>Project Insight</h3>
-          <p id="insightText"></p>
-        </div>
+      <div>
+        <h3>Temporal Impact Projection</h3>
+        <p id="delayAnalysis" style="line-height:1.6; color:var(--muted)"></p>
       </div>
     </div>
 
-    <div id="printArea"></div>
+    <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+
+
+<div class="section">
+  <h3>Conclusion</h3>
+  <p id="conclusionText" style="color:var(--muted); line-height:1.6;"></p>
+</div>
+
+
+    <div style="margin-top: 30px;" id="actions">
+      <button class="btn" onclick="window.location.href='game.html'">← Return to Simulator</button>
+      <button class="btn primary" id="pdfBtn">Download PDF Report</button>
+    </div>
+    <div style="margin-top:30px; font-size:12px; color:var(--muted); text-align:center;">
+Ecosphera Simulation Report • Generated on <span id="date"></span> • Educational Model
+</div>
   </div>
 
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const g = Number(params.get('green') || 0);
+    const r = Number(params.get('red') || 0);
+    const b = Number(params.get('blue') || 0);
+    const time = Number(params.get('months') || 0);
+    const mode = params.get('mode') || "manual";
     const total = 400;
-    const urlParams = new URLSearchParams(window.location.search);
-    const green = Number(urlParams.get('green') || 0);
-    const red = Number(urlParams.get('red') || 0);
-    const blue = Number(urlParams.get('blue') || 0);
-    const initialRed = Number(urlParams.get('initialRed') || 14);
+    const initialRed = Number(params.get('initialRed') || 1);
+    const pct = ((r / total) * 100);
 
-    const beforeGreen = total - initialRed;
-    const beforeRed = initialRed;
-    const beforeBlue = 0;
 
-    document.getElementById('greenVal').textContent = green;
-    document.getElementById('redVal').textContent = red;
-    document.getElementById('blueVal').textContent = blue;
-    document.getElementById('totalVal').textContent = total;
 
-    const redPct = ((red / total) * 100).toFixed(1);
-    const controlledLost = Math.max(0, beforeRed - red);
+    const abstract = `This study evaluates the spread of an invasive species within a controlled grid-based ecosystem. 
+The simulation analyzes how different intervention strategies (${mode.toUpperCase()} mode) influence containment efficiency, 
+habitat preservation, and long-term ecological stability.`;
+document.getElementById('abstractText').textContent = abstract;
 
-   
 
-const infestationRate = (red / total) * 100;
 
-let summary = '';
+let comparison = "";
 
-if (red === 0) {
-  summary = 'Excellent outcome. The spread was fully contained and no active infestation remained.';
-  document.getElementById('statusBadge').textContent = 'Strong containment';
-} else if (infestationRate< 30) {
-  summary = 'Very low spread. The control measures worked extremely well and kept the infestation under control.';
-  document.getElementById('statusBadge').textContent = 'Very low spread';
-} else if (infestationRate < 70) {
-  summary = 'Moderate spread. The infection expanded, but control measures still reduced the overall impact.';
-  document.getElementById('statusBadge').textContent = 'Moderate spread';
-} else if (infestationRate< 200) {
-  summary = 'High spread detected. Intervention had some effect, but the invasion still covered a significant area.';
-  document.getElementById('statusBadge').textContent = 'High spread';
+if (mode === "auto") {
+  comparison = `The automated intervention strategy demonstrated faster response and improved containment efficiency. 
+  Compared to manual methods, AI-based placement reduces delay and optimizes spatial coverage.`;
 } else {
-  summary = 'Severe spread detected. The invasive species expanded rapidly and overwhelmed the control measures.';
-  document.getElementById('statusBadge').textContent = 'Severe spread';
-}
-    document.getElementById('summaryBox').textContent = summary;
-    document.getElementById('resultLine').textContent = `The habitat ended with ${green} healthy cells, ${red} infected cells, and ${blue} controlled cells.`;
-    document.getElementById('infestationText').textContent = `Final infestation rate is ${redPct}%, compared with ${((beforeRed / total) * 100).toFixed(1)}% at the start.`;
-    document.getElementById('controlText').textContent = `Blue control cells protected ${blue} locations and reduced the active spread.`;
-
-
-let insightText = '';
-
-if (red === 0) {
-  insightText = `Complete containment achieved. The habitat ended with ${green} healthy cells and ${blue} controlled cells.`;
-} else if (infestationRate < 30) {
-  insightText = `Low infestation remained. Only ${red} cells stayed infected out of ${total} total cells.`;
-} else if (infestationRate < 70) {
-  insightText = `Moderate infestation remained. The simulation ended with ${red} infected cells and ${blue} controlled cells.`;
-} else if (infestationRate < 200) {
-  insightText = `A large spread remained. ${red} cells were still infected, so stronger intervention would be needed.`;
-} else {
-  insightText = `Severe spread remained. ${red} infected cells show the invasive species was not controlled effectively.`;
+  comparison = `Manual intervention relies on user decisions, making it less consistent than AI-based systems. 
+  Delayed or suboptimal placement of control zones can reduce containment efficiency compared to automated strategies.`;
 }
 
-document.getElementById('insightText').textContent = insightText;
+document.getElementById('comparisonText').textContent = comparison;
 
-document.getElementById('insightText').textContent = insightText;
+
+    document.getElementById('statsList').innerHTML = `
+      <li>Healthy: <b>${g}</b> cells</li>
+      <li>Infected: <b>${r}</b> cells</li>
+      <li>Controlled: <b>${b}</b> cells</li>
+      <li>Time Elapsed: <b>${time}</b> months</li>
+      <li>Infestation: <b>${pct.toFixed(1)}%</b></li>
+      <li>Mode: <b>${mode.toUpperCase()}</b></li>
+    `;
+    document.getElementById('date').textContent = new Date().toLocaleDateString();
+    
+    let summary = "";
+    if (pct < 10) {
+        summary = `The simulation concluded at month ${time} using ${mode.toUpperCase()} mode with a Low spread level (${pct.toFixed(1)}% infestation).
+         Your strategy effectively protected the habitat, resulting in ${g} healthy cells and ${b} strategic containment points. 
+         This high-efficiency outcome confirms that rapid, spatial resource allocation is the most effective defense against invasive expansion.`;
+    } else if (pct < 30) {
+        summary = `The simulation concluded at month ${time} using ${mode.toUpperCase()} mode with a Moderate spread level (${pct.toFixed(1)}% infestation). 
+        While your intervention strategy successfully controlled ${b} cells, the invasive species displayed notable resilience. With ${g} healthy cells remaining, 
+        the results suggest that while containment was functional, earlier deployment of blue zones could have further mitigated the spread.`;
+    } else {
+        summary = `The simulation concluded at month ${time} using ${mode.toUpperCase()} mode with a High spread level (${pct.toFixed(1)}% infestation).
+         Despite the deployment of ${b} containment zones, the invasive species achieved significant coverage. With only ${g} healthy cells remaining,
+          the analysis indicates that the current intervention timing and placement were insufficient to counter the rapid expansion rate of the invasive species.`;
+    }
+    document.getElementById('dynamicSummary').textContent = summary;
+    
+   const spreadRate = time > 0 ? (r / time).toFixed(1) : 0;
+
+document.getElementById('delayAnalysis').textContent =
+`Without the ${time} months of intervention, the ecosystem would have faced near-total saturation.
+The observed spread rate of approximately ${spreadRate} infected cells per month suggests that even a short delay 
+would have accelerated infection growth significantly, reducing overall biodiversity.`;
+
+
+
+    let conclusion = "";
+
+if (pct < 10) {
+  conclusion = "The intervention strategy was highly successful, preventing large-scale ecological damage.";
+} 
+else if (pct < 30) {
+  conclusion = "The intervention achieved moderate success, but improvements in timing and placement could enhance results.";
+} 
+else {
+  conclusion = "The intervention was insufficient to control the spread, indicating the need for stronger or earlier action.";
+}
+
+document.getElementById('conclusionText').textContent = conclusion;
+
+
     const ctx = document.getElementById('comparisonChart').getContext('2d');
-    const chart = new Chart(ctx, {
+    new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Green', 'Red', 'Blue'],
+        labels: ['Healthy Habitat', 'Infected Zones', 'Controlled Zones'],
         datasets: [
-          {
-            label: 'Before',
-            data: [beforeGreen, beforeRed, beforeBlue],
-            backgroundColor: ['rgba(68,211,126,.35)', 'rgba(255,91,110,.35)', 'rgba(77,163,255,.35)'],
-            borderColor: ['#44d37e', '#ff5b6e', '#4da3ff'],
-            borderWidth: 2,
-            borderRadius: 10
-          },
-          {
-            label: 'After',
-            data: [green, red, blue],
-            backgroundColor: ['rgba(68,211,126,.8)', 'rgba(255,91,110,.8)', 'rgba(77,163,255,.8)'],
-            borderColor: ['#44d37e', '#ff5b6e', '#4da3ff'],
-            borderWidth: 2,
-            borderRadius: 10
-          }
+          { label: 'Without Intervention', data: [total-initialRed, initialRed, 0], backgroundColor: '#555' },
+          { label: 'With Intervention', data: [g, r, b], backgroundColor: ['#22c55e', '#f43f5e', '#3b82f6'] }
         ]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#eaf2ff' } } },
-        scales: {
-          x: { ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } },
-          y: { beginAtZero: true, ticks: { color: '#a9b8d1' }, grid: { color: 'rgba(255,255,255,.08)' } }
-        }
-      }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#eaf2ff' } } } }
     });
 
-    function makePrintArea() {
-      const printArea = document.getElementById('printArea');
-      const chartImg = chart.toBase64Image();
-
-      printArea.innerHTML = `
-        <div class="print-title">Ecosphere - Simulation Result</div>
-        <div class="print-sub">${document.getElementById('resultLine').textContent}</div>
-
-        <div class="print-grid">
-          <div class="print-card"><span>Final Green</span><strong>${green}</strong></div>
-          <div class="print-card"><span>Final Red</span><strong>${red}</strong></div>
-          <div class="print-card"><span>Final Blue</span><strong>${blue}</strong></div>
-          <div class="print-card"><span>Total Cells</span><strong>${total}</strong></div>
-        </div>
-
-        <div class="print-summary">${summary}</div>
-
-        <div class="print-chart">
-          <img src="${chartImg}" style="width:100%;display:block;" />
-        </div>
-
-        <div class="print-mini">
-          <div class="print-card">
-            <span>Infestation Rate</span>
-            <p>${document.getElementById('infestationText').textContent}</p>
-          </div>
-          <div class="print-card">
-            <span>Control Impact</span>
-            <p>${document.getElementById('controlText').textContent}</p>
-          </div>
-          <div class="print-card">
-            <span>Project Insight</span>
-            <p>${document.getElementById('insightText').textContent}</p>
-          </div>
-        </div>
-      `;
-
-      return printArea;
-    }
-
-    document.getElementById('downloadPdf').addEventListener('click', async () => {
-      const printArea = makePrintArea();
-      printArea.style.display = 'block';
-
-      const canvas = await html2canvas(printArea, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0
-      });
-
-      printArea.style.display = 'none';
-
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let position = 0;
-      let remaining = imgHeight;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      remaining -= pageHeight;
-
-      while (remaining > 0) {
-        position = pageHeight - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        remaining -= pageHeight;
-      }
-
-      pdf.save('Ecosphere_Result.pdf');
+    document.getElementById('pdfBtn').addEventListener('click', async () => {
+      document.getElementById('actions').style.display = 'none';
+      const canvas = await html2canvas(document.getElementById('report'), { scale: 2, backgroundColor: '#07111f' });
+      document.getElementById('actions').style.display = 'block';
+      const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 10, 10, 190, 0);
+      pdf.save('Ecosphera_Report.pdf');
     });
   </script>
 </body>
