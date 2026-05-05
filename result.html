@@ -7,39 +7,109 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root { 
-      --bg: #07111f; --bg2: #0c1a2d; --text: #eaf2ff; --muted: #a9b8d1;
-      --green: #22c55e; --red: #f43f5e; --blue: #3b82f6;
-    }
-    body { 
-      font-family: 'Inter', Arial, sans-serif; 
-      background: radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%), radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%), linear-gradient(180deg,var(--bg),var(--bg2)); 
-      color: var(--text); padding: 40px 20px; min-height: 100vh; 
-    }
-    .page { 
-      max-width: 800px; margin: 0 auto; background: linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04)); 
-      border: 1px solid rgba(255,255,255,.12); border-radius: 28px; padding: 40px; 
-      box-shadow: 0 20px 60px rgba(0,0,0,.35); backdrop-filter: blur(18px); 
-    }
-    .header-logo { 
-      display: flex; align-items: center; gap: 15px; margin-bottom: 25px; 
-      border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: 20px; 
-    }
-    .brand-mark { 
-      width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg,#22c55e,#3b82f6); 
-      display: grid; place-items: center; color: #04111f; font-weight: 900; font-size: 24px; 
-    }
-    .section { margin: 20px 0; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .chart-container { height: 300px; margin-top: 20px; background: rgba(0,0,0,0.2); border-radius: 16px; padding: 15px; }
-    .btn { 
-      padding: 12px 24px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); 
-      background: rgba(255,255,255,.06); color: var(--text); font-weight: bold; 
-      cursor: pointer; margin-right: 10px; transition: 0.2s; 
-    }
-    .btn:hover { background: rgba(255,255,255,0.1); }
-    .primary { background: linear-gradient(135deg,var(--green),#2fb9ff); color: #04111f; }
-  </style>
+  :root { 
+  --bg: #07111f; --bg2: #0c1a2d; --text: #eaf2ff; --muted: #a9b8d1;
+  --green: #22c55e; --red: #f43f5e; --blue: #3b82f6;
+}
+
+body { 
+  font-family: 'Inter', Arial, sans-serif; 
+  background: radial-gradient(circle at top left, rgba(68,211,126,.16), transparent 28%), radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%), linear-gradient(180deg,var(--bg),var(--bg2)); 
+  color: var(--text); 
+  padding: 40px 20px; 
+  min-height: 100vh; 
+  margin: 0;
+}
+
+.page { 
+  max-width: 800px; 
+  margin: 0 auto; 
+  background: linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04)); 
+  border: 1px solid rgba(255,255,255,.12); 
+  border-radius: 28px; 
+  padding: 40px; 
+  box-shadow: 0 20px 60px rgba(0,0,0,.35); 
+  backdrop-filter: blur(18px);
+  height: auto;        /* Allows expansion */
+  min-height: 100vh; 
+  overflow: visible; 
+}
+
+.header-logo { 
+  display: flex; align-items: center; gap: 15px; margin-bottom: 25px; 
+  border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: 20px; 
+}
+
+.brand-mark { 
+  width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg,#22c55e,#3b82f6); 
+  display: grid; place-items: center; color: #04111f; font-weight: 900; font-size: 24px; 
+}
+
+.section { margin: 25px 0; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.chart-container { 
+  height: auto; 
+  min-height: 300px; 
+  margin-top: 20px; 
+  background: rgba(0,0,0,0.2); 
+  border-radius: 16px; 
+  padding: 15px; 
+}
+
+.btn { 
+  padding: 12px 24px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); 
+  background: rgba(255,255,255,.06); color: var(--text); font-weight: bold; 
+  cursor: pointer; margin-right: 10px; transition: 0.2s; 
+}
+
+.btn:hover { background: rgba(255,255,255,0.1); }
+
+.primary { background: linear-gradient(135deg,var(--green),#2fb9ff); color: #04111f; }
+
+/* PRINT / PDF GENERATION STYLES */
+@media print {
+  body { background: white !important; color: black !important; }
+  
+  .page { 
+    background: white !important; 
+    color: black !important; 
+    box-shadow: none !important; 
+    border: 1px solid #ddd !important; 
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Prevent elements from being sliced in half */
+  .section, .grid, .chart-container {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  
+  /* Force the Chart to start on a new page for professional layout */
+  .chart-container { 
+    border: 1px solid #000; 
+    background: #fff !important; 
+    height: auto !important;
+    page-break-before: always !important; 
+    break-before: page !important;
+  }
+  
+  .btn { display: none !important; }
+  
+  /* Force black text for professional print */
+  h1, h2, h3, p, li, b, small, span, .muted { color: black !important; }
+}
+
+.vertical-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+</style>
 </head>
 <body>
   <div class="page" id="report">
@@ -81,16 +151,18 @@
     
     
 
-    <div class="grid">
-      <div>
-        <h3>Cell Data</h3>
-        <ul id="statsList" style="color:var(--muted)"></ul>
-      </div>
-      <div>
-        <h3>Temporal Impact Projection</h3>
-        <p id="delayAnalysis" style="line-height:1.6; color:var(--muted)"></p>
-      </div>
-    </div>
+   
+
+<div class="vertical-stack">
+  <div class="section">
+    <h3>Cell Data</h3>
+    <ul id="statsList" style="color:var(--muted)"></ul>
+  </div>
+  <div class="section">
+    <h3>Temporal Impact Projection</h3>
+    <p id="delayAnalysis" style="line-height:1.6; color:var(--muted)"></p>
+  </div>
+</div>
 
     <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
 
@@ -206,14 +278,46 @@ document.getElementById('conclusionText').textContent = conclusion;
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#eaf2ff' } } } }
     });
 
-    document.getElementById('pdfBtn').addEventListener('click', async () => {
-      document.getElementById('actions').style.display = 'none';
-      const canvas = await html2canvas(document.getElementById('report'), { scale: 2, backgroundColor: '#07111f' });
-      document.getElementById('actions').style.display = 'block';
-      const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-      pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 10, 10, 190, 0);
-      pdf.save('Ecosphera_Report.pdf');
-    });
+ document.getElementById('pdfBtn').addEventListener('click', async () => {
+  const report = document.getElementById('report');
+  const actions = document.getElementById('actions');
+
+  actions.style.display = 'none';
+
+  // 1. Force the container to calculate its full scroll height
+  const canvas = await html2canvas(report, {
+    scale: 2, 
+    useCORS: true,
+    backgroundColor: "#07111f",
+    // These two lines ensure we capture the whole scrollable area
+    windowWidth: report.scrollWidth,
+    windowHeight: report.scrollHeight
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 1.0);
+  const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+  
+  // Calculate aspect ratio
+  const imgWidth = 210; // A4 width
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  // If content is longer than one A4 page, keep adding pages
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+  heightLeft -= 297; // A4 height
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= 297;
+  }
+
+  pdf.save('Ecosphera_Assessment_Report.pdf');
+  actions.style.display = 'block';
+});
   </script>
 </body>
 </html>
