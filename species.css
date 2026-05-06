@@ -1,0 +1,140 @@
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top left, #0f2a2a, #08131f 60%);
+    color: #e6f1f1;
+}
+
+/* Container */
+.container {
+    padding: 40px 80px;
+}
+
+/* Title */
+h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #7ef9c6, #5ad1ff);
+
+    -webkit-background-clip: text;
+    background-clip: text;   /* ✅ add this line */
+
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: #9fbac0;
+    margin-bottom: 30px;
+}
+
+/* Cards */
+.card {
+    display: flex;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Images */
+.card img {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Content */
+.card-content h2 {
+    margin: 0;
+    color: #7ef9c6;
+}
+
+.card-content p {
+    color: #cfe7e7;
+    margin-top: 10px;
+}
+
+/* Map */
+.map-title {
+    margin-top: 40px;
+    color: #7ef9c6;
+}
+
+.map-container {
+    margin-top: 15px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.map-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;   /* more space for full map */
+    margin: 20px auto;
+}
+
+.world-map {
+    width: 100%;
+    height: 500px;            /* fixed height for proper scaling */
+    object-fit: contain;      /* 🔥 ensures full map is visible */
+    display: block;
+
+    /* 🌍 make continents white */
+    filter: brightness(0) invert(1);
+}
+
+/* 📍 Marker styling */
+.marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* black dot */
+.marker::after {
+    content: "⬤";
+    font-size: 14px;
+    color: black;
+}
+
+/* label above marker */
+.marker span {
+    display: block;
+    background: rgba(0, 0, 0, 0.8);
+    color: #00ffaa;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+.back-btn {
+    display: inline-block;   /* makes it behave like button */
+    
+    background: rgba(0, 0, 0, 0.6);
+    color: #00ffaa;
+
+    border: 1px solid #00ffaa;
+    padding: 8px 14px;
+
+    border-radius: 8px;
+    cursor: pointer;
+
+    font-size: 14px;
+    text-decoration: none;   /* ❌ removes underline */
+
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #00ffaa;
+    color: black;
+}
