@@ -361,6 +361,30 @@
         grid-template-columns: 1fr;
       }
     }
+
+
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.tabs .btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.tabs .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
   </style>
 </head>
 <body>
@@ -392,8 +416,13 @@
 
         <div class="buttons">
           <a class="btn btn-primary" href="game.html">Start Simulation</a>
+            <a href="species.html" class="btn btn-primary">Species Info</a>
+
           <a class="btn btn-secondary" href="#overview">Explore Project</a>
-        </div>
+
+        
+       
+          </div>
 
         <div class="stats">
           <div class="stat">
@@ -503,5 +532,7 @@
       Ecosphera • Invasive Species Spread Simulator • Built for academic showcase and portfolio presentation
     </footer>
   </div>
+
+
 </body>
 </html>
