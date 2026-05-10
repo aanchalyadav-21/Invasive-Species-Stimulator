@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecosphera | Homepage</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0c1a2d;
+      --text:#eaf2ff;
+      --muted:#a9b8d1;
+      --accent:#39d98a;
+      --accent2:#4da3ff;
+      --border:rgba(255,255,255,0.12);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      min-height:100vh;
+      color:var(--text);
+
+      background:
+      radial-gradient(circle at top left, rgba(57,217,138,.18), transparent 28%),
+      radial-gradient(circle at top right, rgba(77,163,255,.16), transparent 24%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:40px 20px;
+    }
+
+    .card{
+      width:100%;
+      max-width:900px;
+
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--border);
+
+      border-radius:28px;
+      padding:50px;
+
+      backdrop-filter:blur(16px);
+
+      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+
+      text-align:center;
+    }
+
+    .logo{
+      width:80px;
+      height:80px;
+      margin:auto;
+      margin-bottom:20px;
+
+      border-radius:20px;
+
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:40px;
+      font-weight:900;
+      color:#04111f;
+    }
+
+    h1{
+      font-size:3rem;
+      margin-bottom:10px;
+
+      background:linear-gradient(90deg,#ffffff,#8be8b8,#69b7ff);
+
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:1.1rem;
+      margin-bottom:35px;
+    }
+
+    .info-box{
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:25px;
+      margin-bottom:25px;
+      text-align:left;
+    }
+
+    .info-box h2{
+      margin-bottom:15px;
+      color:#8be8b8;
+    }
+
+    .info-box p,
+    .info-box li{
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    ul{
+      padding-left:20px;
+    }
+
+    .btn{
+      display:inline-block;
+      margin-top:30px;
+
+      padding:15px 30px;
+
+      border-radius:14px;
+
+      background:linear-gradient(135deg,var(--accent),#2fb9ff);
+
+      color:#04111f;
+      text-decoration:none;
+      font-weight:800;
+
+      transition:0.3s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-3px);
+      box-shadow:0 10px 25px rgba(57,217,138,.3);
+    }
+
+    @media(max-width:768px){
+
+      .card{
+        padding:30px;
+      }
+
+      h1{
+        font-size:2.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="logo">E</div>
+
+    <h1>Ecosphera</h1>
+
+    <p class="subtitle">
+      Invasive Species Spread Simulator
+    </p>
+
+    <div class="info-box">
+      <h2>Project Details</h2>
+
+      <p><strong>Project Title:</strong> Ecosphera Invasive Species Spread Simulator</p>
+
+      <p><strong>Division:</strong> C </p>
+
+      <p><strong>Batch:</strong> C</p>
+
+      <p><strong>SDG Goal:</strong> SDG 15  Life on Land</p>
+    </div>
+
+    <div class="info-box">
+      <h2>Group Members</h2>
+
+      <ul>
+        <li>Aanchal Yadav  Roll no:54</li>
+        <li>Aditya Tol     Roll No:52</li>
+        <li>Ashil George   Roll No:51</li>
+        <li>Kartik Joshi  Roll No:63</li>
+        <li>Varghese Shaji Roll No:53</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <h2>About the Project</h2>
+
+      <p>
+        Ecosphera is an interactive environmental simulation project that demonstrates how invasive species spread through ecosystems.
+        The project visualizes habitat infestation, ecological imbalance, and intervention techniques using a grid-based simulation model.
+      </p>
+    </div>
+
+    <a href="index.html" class="btn">
+      Enter Project →
+    </a>
+
+  </div>
+
+</body>
+</html>
